@@ -1,4 +1,4 @@
-# typed: false
+# typed: true
 # frozen_string_literal: true
 
 require "formula"
@@ -17,7 +17,8 @@ module Homebrew
       EOS
       switch "-n", "--dry-run",
              description: "List what would be uninstalled, but do not actually uninstall anything."
-      named 0
+
+      max_named 0
     end
   end
 

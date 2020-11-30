@@ -8,8 +8,11 @@ require "tmpdir"
 require "formula"
 
 module Homebrew
+  extend T::Sig
+
   module_function
 
+  sig { returns(CLI::Parser) }
   def pr_pull_args
     Homebrew::CLI::Parser.new do
       usage_banner <<~EOS
@@ -47,7 +50,8 @@ module Homebrew
              depends_on:  "--autosquash",
              description: "Message to include when autosquashing revision bumps, deletions, and rebuilds."
       flag   "--workflow=",
-             description: "Retrieve artifacts from the specified workflow (default: `tests.yml`)."
+             description: "Retrieve artifacts from the specified workflow (default: `tests.yml`). "\
+                          "Legacy: use --workflows instead"
       flag   "--artifact=",
              description: "Download artifacts with the specified name (default: `bottles`)."
       flag   "--bintray-org=",
@@ -59,8 +63,14 @@ module Homebrew
       flag   "--bintray-mirror=",
              description: "Use the specified Bintray repository to automatically mirror stable URLs "\
                           "defined in the formulae (default: `mirror`)."
-      min_named 1
+      comma_array "--workflows=",
+                  description: "Retrieve artifacts from the specified workflow (default: `tests.yml`) "\
+                               "Comma-separated list to include multiple workflows."
+      comma_array "--ignore-missing-artifacts=",
+                  description: "Comma-separated list of workflows which can be ignored if they have not been run."
+
       conflicts "--clean", "--autosquash"
+      min_named 1
     end
   end
 
@@ -282,8 +292,9 @@ module Homebrew
     Utils::Git.cherry_pick!(path, "--ff", "--allow-empty", *commits, verbose: args.verbose?, resolve: args.resolve?)
   end
 
-  def formulae_need_bottles?(tap, original_commit, args:)
+  def formulae_need_bottles?(tap, original_commit, user, repo, pr, args:)
     return if args.dry_run?
+    return false if GitHub.pull_request_labels(user, repo, pr).include? "CI-syntax-only"
 
     changed_formulae(tap, original_commit).any? do |f|
       !f.bottle_unneeded? && !f.bottle_disabled?
@@ -352,7 +363,13 @@ module Homebrew
   def pr_pull
     args = pr_pull_args.parse
 
-    workflow = args.workflow || "tests.yml"
+    odeprecated "`brew pr-pull --workflow`", "`brew pr-pull --workflows=`" if args.workflow.presence
+
+    workflows = if args.workflow.blank?
+      args.workflows.presence || ["tests.yml"]
+    else
+      [args.workflow].compact.presence || ["tests.yml"]
+    end
     artifact = args.artifact || "bottles"
     bintray_org = args.bintray_org || "homebrew"
     mirror_repo = args.bintray_mirror || "mirror"
@@ -391,13 +408,28 @@ module Homebrew
                             args: args)
           end
 
-          unless formulae_need_bottles?(tap, original_commit, args: args)
+          unless formulae_need_bottles?(tap, original_commit, user, repo, pr, args: args)
             ohai "Skipping artifacts for ##{pr} as the formulae don't need bottles"
             next
           end
 
-          url = GitHub.get_artifact_url(user, repo, pr, workflow_id: workflow, artifact_name: artifact)
-          download_artifact(url, dir, pr)
+          workflows.each do |workflow|
+            workflow_run = GitHub.get_workflow_run(
+              user, repo, pr, workflow_id: workflow, artifact_name: artifact
+            )
+            if args.ignore_missing_artifacts.present? &&
+               args.ignore_missing_artifacts.include?(workflow) &&
+               workflow_run.first.blank?
+              # Ignore that workflow as it was not executed and we specified
+              # that we could skip it.
+              ohai "Ignoring workflow #{workflow} as requested by --ignore-missing-artifacts"
+              next
+            end
+
+            ohai "Downloading bottles for workflow: #{workflow}"
+            url = GitHub.get_artifact_url(workflow_run)
+            download_artifact(url, dir, pr)
+          end
 
           next if args.no_upload?
 
@@ -418,6 +450,8 @@ module Homebrew
 end
 
 class GitHubArtifactDownloadStrategy < AbstractFileDownloadStrategy
+  extend T::Sig
+
   def fetch
     ohai "Downloading #{url}"
     if cached_location.exist?
@@ -441,6 +475,7 @@ class GitHubArtifactDownloadStrategy < AbstractFileDownloadStrategy
 
   private
 
+  sig { returns(String) }
   def resolved_basename
     "artifact.zip"
   end

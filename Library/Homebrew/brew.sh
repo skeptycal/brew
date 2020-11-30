@@ -44,6 +44,7 @@ case "$*" in
   --caskroom)          echo "$HOMEBREW_PREFIX/Caskroom"; exit 0 ;;
   --cache)             echo "$HOMEBREW_CACHE"; exit 0 ;;
   shellenv)            source "$HOMEBREW_LIBRARY/Homebrew/cmd/shellenv.sh"; homebrew-shellenv; exit 0 ;;
+  formulae)            source "$HOMEBREW_LIBRARY/Homebrew/cmd/formulae.sh"; homebrew-formulae; exit 0 ;;
 esac
 
 #####
@@ -159,7 +160,7 @@ update-preinstall() {
   fi
 
   if [[ "$HOMEBREW_COMMAND" = "install" || "$HOMEBREW_COMMAND" = "upgrade" ||
-        "$HOMEBREW_COMMAND" = "bump-formula-pr" ||
+        "$HOMEBREW_COMMAND" = "bump-formula-pr" || "$HOMEBREW_COMMAND" = "bump-cask-pr" ||
         "$HOMEBREW_COMMAND" = "bundle" ||
         "$HOMEBREW_COMMAND" = "tap" && $HOMEBREW_ARG_COUNT -gt 1 ||
         "$HOMEBREW_CASK_COMMAND" = "install" || "$HOMEBREW_CASK_COMMAND" = "upgrade" ]]
@@ -344,23 +345,32 @@ else
   : "${HOMEBREW_OS_VERSION:=$(uname -r)}"
   HOMEBREW_OS_USER_AGENT_VERSION="$HOMEBREW_OS_VERSION"
 
-  # Ensure the system Curl is a version that supports modern HTTPS certificates.
-  HOMEBREW_MINIMUM_CURL_VERSION="7.41.0"
+  if [[ -n "$HOMEBREW_FORCE_HOMEBREW_ON_LINUX" && -n "$HOMEBREW_ON_DEBIAN7" ]]
+  then
+    # Special version for our debian 7 docker container used to build patchelf and binutils
+    HOMEBREW_MINIMUM_CURL_VERSION="7.25.0"
+  else
+    # Ensure the system Curl is a version that supports modern HTTPS certificates.
+    HOMEBREW_MINIMUM_CURL_VERSION="7.41.0"
+  fi
   curl_version_output="$($HOMEBREW_CURL --version 2>/dev/null)"
   curl_name_and_version="${curl_version_output%% (*}"
   if [[ $(numeric "${curl_name_and_version##* }") -lt $(numeric "$HOMEBREW_MINIMUM_CURL_VERSION") ]]
   then
-    if [[ -z $HOMEBREW_CURL_PATH ]]; then
+      message="Please update your system cURL.
+Minimum required version: ${HOMEBREW_MINIMUM_CURL_VERSION}
+Your cURL version: ${curl_name_and_version##* }
+Your cURL executable: $(type -p $HOMEBREW_CURL)"
+
+    if [[ -z $HOMEBREW_CURL_PATH || -z $HOMEBREW_DEVELOPER ]]; then
       HOMEBREW_SYSTEM_CURL_TOO_OLD=1
       HOMEBREW_FORCE_BREWED_CURL=1
+      if [[ -z $HOMEBREW_CURL_WARNING ]]; then
+        onoe "$message"
+        HOMEBREW_CURL_WARNING=1
+      fi
     else
-      odie <<EOS
-The version of cURL that you provided to Homebrew using HOMEBREW_CURL_PATH is too old.
-Minimum required version: ${HOMEBREW_MINIMUM_CURL_VERSION}.
-Your cURL version: ${curl_name_and_version##* }.
-Please point Homebrew to cURL ${HOMEBREW_MINIMUM_CURL_VERSION} or newer
-or unset HOMEBREW_CURL_PATH variable.
-EOS
+      odie "$message"
     fi
   fi
 
@@ -373,16 +383,18 @@ EOS
   IFS=. read -r major minor micro build extra <<< "${git_version_output##* }"
   if [[ $(numeric "$major.$minor.$micro.$build") -lt $(numeric "$HOMEBREW_MINIMUM_GIT_VERSION") ]]
   then
-    if [[ -z $HOMEBREW_GIT_PATH ]]; then
+    message="Please update your system Git.
+Minimum required version: ${HOMEBREW_MINIMUM_GIT_VERSION}
+Your Git version: $major.$minor.$micro.$build
+Your Git executable: $(unset git && type -p $HOMEBREW_GIT)"
+    if [[ -z $HOMEBREW_GIT_PATH || -z $HOMEBREW_DEVELOPER ]]; then
       HOMEBREW_FORCE_BREWED_GIT="1"
+      if [[ -z $HOMEBREW_GIT_WARNING ]]; then
+        onoe "$message"
+        HOMEBREW_GIT_WARNING=1
+      fi
     else
-      odie <<EOS
-The version of Git that you provided to Homebrew using HOMEBREW_GIT_PATH is too old.
-Minimum required version: ${HOMEBREW_MINIMUM_GIT_VERSION}.
-Your Git version: $major.$minor.$micro.$build.
-Please point Homebrew to Git ${HOMEBREW_MINIMUM_CURL_VERSION} or newer
-or unset HOMEBREW_GIT_PATH variable.
-EOS
+      odie "$message"
     fi
   fi
 
@@ -418,8 +430,10 @@ export HOMEBREW_TEMP
 export HOMEBREW_CELLAR
 export HOMEBREW_SYSTEM
 export HOMEBREW_CURL
+export HOMEBREW_CURL_WARNING
 export HOMEBREW_SYSTEM_CURL_TOO_OLD
 export HOMEBREW_GIT
+export HOMEBREW_GIT_WARNING
 export HOMEBREW_MINIMUM_GIT_VERSION
 export HOMEBREW_PROCESSOR
 export HOMEBREW_PRODUCT

@@ -13,20 +13,23 @@ require "utils/spdx"
 require "deprecate_disable"
 
 module Homebrew
+  extend T::Sig
+
   module_function
 
   VALID_DAYS = %w[30 90 365].freeze
   VALID_FORMULA_CATEGORIES = %w[install install-on-request build-error].freeze
   VALID_CATEGORIES = (VALID_FORMULA_CATEGORIES + %w[cask-install os-version]).freeze
 
+  sig { returns(CLI::Parser) }
   def info_args
     Homebrew::CLI::Parser.new do
       usage_banner <<~EOS
-        `info` [<options>] [<formula>]
+        `info` [<options>] [<formula>|<cask>]
 
         Display brief statistics for your Homebrew installation.
 
-        If <formula> is provided, show summary of information about <formula>.
+        If a <formula> or <cask> is provided, show summary of information about it.
       EOS
       switch "--analytics",
              description: "List global Homebrew analytics data or, if specified, installation and "\
@@ -46,9 +49,9 @@ module Homebrew
              description: "Open the GitHub source page for <formula> in a browser. "\
                           "To view formula history locally: `brew log -p` <formula>"
       flag   "--json",
-             description: "Print a JSON representation of <formula>. Currently the default and only accepted "\
-                          "value for <version> is `v1`. See the docs for examples of using the JSON "\
-                          "output: <https://docs.brew.sh/Querying-Brew>"
+             description: "Print a JSON representation. Currently the default value for <version> is `v1` for "\
+                          "<formula>. For <formula> and <cask> use `v2`. See the docs for examples of using the "\
+                          "JSON output: <https://docs.brew.sh/Querying-Brew>"
       switch "--installed",
              depends_on:  "--json",
              description: "Print JSON of formulae that are currently installed."
@@ -58,12 +61,22 @@ module Homebrew
       switch "-v", "--verbose",
              description: "Show more verbose analytics data for <formula>."
 
+      switch "--formula", "--formulae",
+             description: "Treat all named arguments as formulae."
+      switch "--cask", "--casks",
+             description: "Treat all named arguments as casks."
+      conflicts "--formula", "--cask"
+
       conflicts "--installed", "--all"
     end
   end
 
+  sig { void }
   def info
     args = info_args.parse
+
+    only = :formula if args.formula? && !args.cask?
+    only = :cask if args.cask? && !args.formula?
 
     if args.analytics?
       if args.days.present? && !VALID_DAYS.include?(args.days)
@@ -80,31 +93,36 @@ module Homebrew
         end
       end
 
-      print_analytics(args: args)
+      print_analytics(args: args, only: only)
     elsif args.json
-      print_json(args: args)
+      print_json(args: args, only: only)
     elsif args.github?
       raise FormulaOrCaskUnspecifiedError if args.no_named?
 
-      exec_browser(*args.named.to_formulae_and_casks.map { |f| github_info(f) })
+      exec_browser(*args.named.to_formulae_and_casks(only: only).map { |f| github_info(f) })
+    elsif args.no_named?
+      print_statistics
     else
-      print_info(args: args)
+      print_info(args: args, only: only)
     end
   end
 
-  def print_analytics(args:)
-    if args.no_named?
-      if args.analytics?
-        Utils::Analytics.output(args: args)
-      elsif HOMEBREW_CELLAR.exist?
-        count = Formula.racks.length
-        puts "#{count} #{"keg".pluralize(count)}, #{HOMEBREW_CELLAR.dup.abv}"
-      end
+  sig { void }
+  def print_statistics
+    return unless HOMEBREW_CELLAR.exist?
 
+    count = Formula.racks.length
+    puts "#{count} #{"keg".pluralize(count)}, #{HOMEBREW_CELLAR.dup.abv}"
+  end
+
+  sig { params(args: CLI::Args, only: T.nilable(Symbol)).void }
+  def print_analytics(args:, only: nil)
+    if args.no_named?
+      Utils::Analytics.output(args: args)
       return
     end
 
-    args.named.to_formulae_and_casks_and_unavailable.each_with_index do |obj, i|
+    args.named.to_formulae_and_casks_and_unavailable(only: only).each_with_index do |obj, i|
       puts unless i.zero?
 
       case obj
@@ -120,8 +138,9 @@ module Homebrew
     end
   end
 
-  def print_info(args:)
-    args.named.to_formulae_and_casks_and_unavailable.each_with_index do |obj, i|
+  sig { params(args: CLI::Args, only: T.nilable(Symbol)).void }
+  def print_info(args:, only: nil)
+    args.named.to_formulae_and_casks_and_unavailable(only: only).each_with_index do |obj, i|
       puts unless i.zero?
 
       case obj
@@ -153,11 +172,14 @@ module Homebrew
     version_hash[version]
   end
 
-  def print_json(args:)
+  sig { params(args: CLI::Args, only: T.nilable(Symbol)).void }
+  def print_json(args:, only: nil)
     raise FormulaOrCaskUnspecifiedError if !(args.all? || args.installed?) && args.no_named?
 
     json = case json_version(args.json)
     when :v1, :default
+      raise UsageError, "cannot specify --cask with --json=v1!" if args.cask?
+
       formulae = if args.all?
         Formula.sort
       elsif args.installed?
@@ -173,7 +195,7 @@ module Homebrew
       elsif args.installed?
         [Formula.installed.sort, Cask::Caskroom.casks.sort_by(&:full_name)]
       else
-        args.named.to_formulae_to_casks
+        args.named.to_formulae_to_casks(only: only)
       end
 
       {

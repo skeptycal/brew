@@ -10,6 +10,8 @@ require "description_cache_store"
 require "cli/parser"
 
 module Homebrew
+  extend T::Sig
+
   module_function
 
   def update_preinstall_header(args:)
@@ -19,6 +21,7 @@ module Homebrew
     end
   end
 
+  sig { returns(CLI::Parser) }
   def update_report_args
     Homebrew::CLI::Parser.new do
       usage_banner <<~EOS
@@ -319,7 +322,7 @@ class Reporter
         new_tap.install unless new_tap.installed?
         ohai "#{name} has been moved to Homebrew.", <<~EOS
           To uninstall the cask run:
-            brew cask uninstall --force #{name}
+            brew uninstall --cask --force #{name}
         EOS
         next if (HOMEBREW_CELLAR/new_name.split("/").last).directory?
 
@@ -349,8 +352,8 @@ class Reporter
           system HOMEBREW_BREW_FILE, "unlink", name
           ohai "brew cleanup"
           system HOMEBREW_BREW_FILE, "cleanup"
-          ohai "brew cask install #{new_name}"
-          system HOMEBREW_BREW_FILE, "cask", "install", new_name
+          ohai "brew install --cask #{new_name}"
+          system HOMEBREW_BREW_FILE, "install", "--cask", new_name
           ohai <<~EOS
             #{name} has been moved to Homebrew Cask.
             The existing keg has been unlinked.
@@ -362,7 +365,7 @@ class Reporter
             To uninstall the formula and install the cask run:
               brew uninstall --force #{name}
               brew tap #{new_tap_name}
-              brew cask install #{new_name}
+              brew install --cask #{new_name}
           EOS
         end
       else
@@ -413,10 +416,13 @@ class Reporter
 end
 
 class ReporterHub
+  extend T::Sig
+
   extend Forwardable
 
   attr_reader :reporters
 
+  sig { void }
   def initialize
     @hash = {}
     @reporters = []

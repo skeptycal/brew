@@ -14,6 +14,8 @@ require "global"
 require "os/mac/version"
 
 class SoftwareSpec
+  extend T::Sig
+
   extend Forwardable
 
   PREDEFINED_OPTIONS = {
@@ -27,7 +29,9 @@ class SoftwareSpec
 
   def_delegators :@resource, :stage, :fetch, :verify_download_integrity, :source_modified_time, :download_name,
                  :cached_download, :clear_cache, :checksum, :mirrors, :specs, :using, :version, :mirror,
-                 :downloader, *Checksum::TYPES
+                 :downloader
+
+  def_delegators :@resource, *Checksum::TYPES
 
   def initialize(flags: [])
     @resource = Resource.new
@@ -78,6 +82,7 @@ class SoftwareSpec
     @bottle_disable_reason.unneeded?
   end
 
+  sig { returns(T::Boolean) }
   def bottle_disabled?
     @bottle_disable_reason ? true : false
   end
@@ -104,7 +109,7 @@ class SoftwareSpec
   end
 
   def resource(name, klass = Resource, &block)
-    if block_given?
+    if block
       raise DuplicateResourceError, name if resource_defined?(name)
 
       res = klass.new(name, &block)
@@ -247,6 +252,8 @@ end
 
 class Bottle
   class Filename
+    extend T::Sig
+
     attr_reader :name, :version, :tag, :rebuild
 
     def self.create(formula, tag, rebuild)
@@ -260,11 +267,13 @@ class Bottle
       @rebuild = rebuild
     end
 
+    sig { returns(String) }
     def to_s
       "#{name}--#{version}#{extname}"
     end
     alias to_str to_s
 
+    sig { returns(String) }
     def json
       "#{name}--#{version}.#{tag}.bottle.json"
     end
@@ -273,6 +282,7 @@ class Bottle
       ERB::Util.url_encode("#{name}-#{version}#{extname}")
     end
 
+    sig { returns(String) }
     def extname
       s = rebuild.positive? ? ".#{rebuild}" : ""
       ".#{tag}.bottle#{s}.tar.gz"
@@ -327,12 +337,15 @@ class Bottle
 end
 
 class BottleSpecification
+  extend T::Sig
+
   DEFAULT_PREFIX = Homebrew::DEFAULT_PREFIX
 
   attr_rw :prefix, :cellar, :rebuild
   attr_accessor :tap
   attr_reader :checksum, :collector, :root_url_specs
 
+  sig { void }
   def initialize
     @rebuild = 0
     @prefix = Homebrew::DEFAULT_PREFIX
@@ -355,6 +368,7 @@ class BottleSpecification
   end
 
   # Does the {Bottle} this {BottleSpecification} belongs to need to be relocated?
+  sig { returns(T::Boolean) }
   def skip_relocation?
     cellar == :any_skip_relocation
   end

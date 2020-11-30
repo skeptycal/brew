@@ -1,4 +1,4 @@
-# typed: false
+# typed: true
 # frozen_string_literal: true
 
 require "formula"
@@ -6,8 +6,11 @@ require "keg"
 require "cli/parser"
 
 module Homebrew
+  extend T::Sig
+
   module_function
 
+  sig { returns(CLI::Parser) }
   def switch_args
     Homebrew::CLI::Parser.new do
       usage_banner <<~EOS
@@ -29,7 +32,7 @@ module Homebrew
 
     odie "#{name} not found in the Cellar." unless rack.directory?
 
-    # odeprecated "`brew switch`", "`brew link` @-versioned formulae"
+    odeprecated "`brew switch`", "`brew link` @-versioned formulae"
 
     versions = rack.subdirs
                    .map { |d| Keg.new(d).version }

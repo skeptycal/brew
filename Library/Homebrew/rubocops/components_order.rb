@@ -38,6 +38,8 @@ module RuboCop
             [{ name: :keg_only,  type: :method_call }],
             [{ name: :option,    type: :method_call }],
             [{ name: :deprecated_option, type: :method_call }],
+            [{ name: :disable!, type: :method_call }],
+            [{ name: :deprecate!, type: :method_call }],
             [{ name: :depends_on, type: :method_call }],
             [{ name: :uses_from_macos, type: :method_call }],
             [{ name: :on_macos, type: :block_call }],
@@ -148,6 +150,8 @@ module RuboCop
 
             valid_node ||= child.method_name.to_s == "patch"
             valid_node ||= child.method_name.to_s == "resource"
+            valid_node ||= child.method_name.to_s == "deprecate!"
+            valid_node ||= child.method_name.to_s == "disable!"
 
             @offensive_node = on_os_block
             @offense_source_range = on_os_block.source_range

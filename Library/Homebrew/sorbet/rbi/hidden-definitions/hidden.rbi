@@ -7,6 +7,11 @@ class AbstractDownloadStrategy
   include ::FileUtils::StreamUtils_
 end
 
+class AbstractDownloadStrategy
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 module ActiveSupport
   def parse_json_times(); end
 
@@ -2980,10 +2985,6 @@ end
 
 BasicObject::BasicObject = BasicObject
 
-class BasicSocket
-  def read_nonblock(len, str=T.unsafe(nil), exception: T.unsafe(nil)); end
-end
-
 class Benchmark::Job
   def initialize(width); end
 end
@@ -3019,29 +3020,22 @@ class Binding
   def irb(); end
 end
 
-class Bottle
-  def cached_download(*args, &block); end
-
-  def clear_cache(*args, &block); end
-
-  def fetch(*args, &block); end
-
-  def url(*args, &block); end
-
-  def verify_download_integrity(*args, &block); end
+class Bintray
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class BottleSpecification
-  def cellar(val=T.unsafe(nil)); end
-
-  def prefix(val=T.unsafe(nil)); end
-
-  def rebuild(val=T.unsafe(nil)); end
-
-  def sha256(val); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
-class BottleSpecification
+module BuildEnvironment::DSL
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class BuildEnvironment
   extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
 end
@@ -5480,108 +5474,49 @@ end
 module CGI::HtmlExtension
 end
 
-class Cask::Audit
-  def appcast?(); end
-
-  def new_cask?(); end
-
-  def online?(); end
-
-  def strict?(); end
-
-  def token_conflicts?(); end
+class Cask::AbstractCaskErrorWithToken
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
-class Cask::Cask
-  def app(&block); end
+class Cask::Artifact::AbstractArtifact
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def appcast(&block); end
+class Cask::Audit
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def appdir(&block); end
+module Cask::Cache
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def artifact(&block); end
+class Cask::CaskLoader::FromURILoader
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def artifacts(&block); end
+class Cask::CaskLoader::NullLoader
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def audio_unit_plugin(&block); end
+class Cask::CaskQuarantineError
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def auto_updates(&block); end
+class Cask::CaskUnspecifiedError
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def binary(&block); end
-
-  def caveats(&block); end
-
-  def colorpicker(&block); end
-
-  def conflicts_with(&block); end
-
-  def container(&block); end
-
-  def depends_on(&block); end
-
-  def desc(&block); end
-
-  def dictionary(&block); end
-
-  def discontinued?(&block); end
-
-  def font(&block); end
-
-  def homepage(&block); end
-
-  def input_method(&block); end
-
-  def installer(&block); end
-
-  def internet_plugin(&block); end
-
-  def language(&block); end
-
-  def languages(&block); end
-
-  def manpage(&block); end
-
-  def mdimporter(&block); end
-
-  def name(&block); end
-
-  def pkg(&block); end
-
-  def postflight(&block); end
-
-  def preflight(&block); end
-
-  def prefpane(&block); end
-
-  def qlplugin(&block); end
-
-  def screen_saver(&block); end
-
-  def service(&block); end
-
-  def sha256(&block); end
-
-  def stage_only(&block); end
-
-  def staged_path(&block); end
-
-  def suite(&block); end
-
-  def uninstall(&block); end
-
-  def uninstall_postflight(&block); end
-
-  def uninstall_preflight(&block); end
-
-  def url(&block); end
-
-  def version(&block); end
-
-  def vst3_plugin(&block); end
-
-  def vst_plugin(&block); end
-
-  def zap(&block); end
+module Cask::Caskroom
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Cask::Config
@@ -5642,82 +5577,10 @@ class Cask::Config
   def vst_plugindir=(path); end
 end
 
-class Cask::DSL
-  def app(*args); end
-
-  def artifact(*args); end
-
-  def audio_unit_plugin(*args); end
-
-  def binary(*args); end
-
-  def colorpicker(*args); end
-
-  def dictionary(*args); end
-
-  def font(*args); end
-
-  def input_method(*args); end
-
-  def installer(*args); end
-
-  def internet_plugin(*args); end
-
-  def manpage(*args); end
-
-  def mdimporter(*args); end
-
-  def pkg(*args); end
-
-  def postflight(&block); end
-
-  def preflight(&block); end
-
-  def prefpane(*args); end
-
-  def qlplugin(*args); end
-
-  def screen_saver(*args); end
-
-  def service(*args); end
-
-  def stage_only(*args); end
-
-  def suite(*args); end
-
-  def uninstall(*args); end
-
-  def uninstall_postflight(&block); end
-
-  def uninstall_preflight(&block); end
-
-  def vst3_plugin(*args); end
-
-  def vst_plugin(*args); end
-
-  def zap(*args); end
-end
-
-class Cask::DSL::Base
-  def appdir(*args, &block); end
-
-  def caskroom_path(*args, &block); end
-
-  def language(*args, &block); end
-
-  def staged_path(*args, &block); end
-
-  def token(*args, &block); end
-
-  def version(*args, &block); end
-end
-
 class Cask::DSL::Caveats
   def depends_on_java(*args); end
 
   def discontinued(*args); end
-
-  def discontinued?(); end
 
   def files_in_usr_local(*args); end
 
@@ -5772,36 +5635,29 @@ class Cask::DSL::Version
   def underscores_to_hyphens(); end
 end
 
-class Cask::Installer
-  def binaries?(); end
-
-  def force?(); end
-
-  def installed_as_dependency?(); end
-
-  def quarantine?(); end
-
-  def reinstall?(); end
-
-  def require_sha?(); end
-
-  def skip_cask_deps?(); end
-
-  def upgrade?(); end
-
-  def verbose?(); end
+module Cask::Denylist
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
-class Caveats
-  def empty?(*args, &block); end
-
-  def to_s(*args, &block); end
+class Cask::MultipleCaskErrors
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
-class Checksum
-  def empty?(*args, &block); end
+module Cask::Quarantine
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def to_s(*args, &block); end
+module Cask::Staged
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Cask::Utils
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Class
@@ -6231,6 +6087,11 @@ end
 module CopHelper
   extend ::RSpec::Core::SharedContext
   extend ::RSpec::Its
+end
+
+class CxxStdlib
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class DRb::DRbArray
@@ -6703,9 +6564,12 @@ class Debrew::Menu::Entry
   def self.members(); end
 end
 
-module Debrew
-  def self.active?(); end
+class Debrew::Menu
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
+module Debrew
   def self.lock(); end
 
   def self.locked?(); end
@@ -6721,8 +6585,28 @@ class Delegator
   include ::ActiveSupport::Tryable
 end
 
-module DependenciesHelpers
-  include ::DependenciesHelpers::Compat
+class Dependencies
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Dependency
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class DependencyCollector
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class DeprecatedOption
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class DevelopmentTools
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Dir
@@ -6733,6 +6617,11 @@ end
 
 class Dir
   def self.exists?(_); end
+end
+
+module DiskUsageExtension
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module Docile
@@ -6923,6 +6812,11 @@ module ERB::Util
   def self.unwrapped_html_escape(s); end
 end
 
+class EmbeddedPatch
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class Encoding
   def _dump(*_); end
 end
@@ -6979,37 +6873,86 @@ class Enumerator::Generator
   def initialize(*_); end
 end
 
-Errno::EAUTH = Errno::NOERROR
+module EnvVar
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-Errno::EBADARCH = Errno::NOERROR
+class Errno::EAUTH
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::EBADEXEC = Errno::NOERROR
+class Errno::EAUTH
+end
 
-Errno::EBADMACHO = Errno::NOERROR
+class Errno::EBADARCH
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::EBADRPC = Errno::NOERROR
+class Errno::EBADARCH
+end
 
-Errno::ECAPMODE = Errno::NOERROR
+class Errno::EBADEXEC
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::EDEADLOCK = Errno::EDEADLK
+class Errno::EBADEXEC
+end
 
-Errno::EDEVERR = Errno::NOERROR
+class Errno::EBADMACHO
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::EBADMACHO
+end
+
+class Errno::EBADRPC
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::EBADRPC
+end
+
+Errno::EDEADLOCK = Errno::NOERROR
+
+class Errno::EDEVERR
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::EDEVERR
+end
 
 Errno::EDOOFUS = Errno::NOERROR
 
-Errno::EFTYPE = Errno::NOERROR
+class Errno::EFTYPE
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::EFTYPE
+end
 
 Errno::EIPSEC = Errno::NOERROR
 
-Errno::ELAST = Errno::NOERROR
+class Errno::ENEEDAUTH
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::ENEEDAUTH = Errno::NOERROR
+class Errno::ENEEDAUTH
+end
 
-Errno::ENOATTR = Errno::NOERROR
+class Errno::ENOATTR
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::ENOPOLICY = Errno::NOERROR
+class Errno::ENOATTR
+end
 
-Errno::ENOTCAPABLE = Errno::NOERROR
+class Errno::ENOPOLICY
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::ENOPOLICY
+end
 
 class Errno::ENOTSUP
   Errno = ::T.let(nil, ::T.untyped)
@@ -7018,21 +6961,61 @@ end
 class Errno::ENOTSUP
 end
 
-Errno::EPROCLIM = Errno::NOERROR
+class Errno::EPROCLIM
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::EPROCUNAVAIL = Errno::NOERROR
+class Errno::EPROCLIM
+end
 
-Errno::EPROGMISMATCH = Errno::NOERROR
+class Errno::EPROCUNAVAIL
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::EPROGUNAVAIL = Errno::NOERROR
+class Errno::EPROCUNAVAIL
+end
 
-Errno::EPWROFF = Errno::NOERROR
+class Errno::EPROGMISMATCH
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::EQFULL = Errno::NOERROR
+class Errno::EPROGMISMATCH
+end
 
-Errno::ERPCMISMATCH = Errno::NOERROR
+class Errno::EPROGUNAVAIL
+  Errno = ::T.let(nil, ::T.untyped)
+end
 
-Errno::ESHLIBVERS = Errno::NOERROR
+class Errno::EPROGUNAVAIL
+end
+
+class Errno::EPWROFF
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::EPWROFF
+end
+
+class Errno::EQFULL
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::EQFULL
+end
+
+class Errno::ERPCMISMATCH
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::ERPCMISMATCH
+end
+
+class Errno::ESHLIBVERS
+  Errno = ::T.let(nil, ::T.untyped)
+end
+
+class Errno::ESHLIBVERS
+end
 
 class Etc::Group
   def gid(); end
@@ -7062,7 +7045,15 @@ class Etc::Group
 end
 
 class Etc::Passwd
+  def change(); end
+
+  def change=(_); end
+
   def dir=(_); end
+
+  def expire(); end
+
+  def expire=(_); end
 
   def gecos(); end
 
@@ -7075,6 +7066,10 @@ class Etc::Passwd
   def passwd=(_); end
 
   def shell=(_); end
+
+  def uclass(); end
+
+  def uclass=(_); end
 
   def uid=(_); end
 end
@@ -7136,19 +7131,8 @@ class ExitCalledError
 end
 
 class ExternalPatch
-  def cached_download(*args, &block); end
-
-  def clear_cache(*args, &block); end
-
-  def downloaded?(*args, &block); end
-
-  def fetch(*args, &block); end
-
-  def patch_files(*args, &block); end
-
-  def url(*args, &block); end
-
-  def verify_download_integrity(*args, &block); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class FalseClass
@@ -7161,18 +7145,6 @@ end
 
 class Fiber
   def self.current(); end
-end
-
-module Fiddle
-  NULL = ::T.let(nil, ::T.untyped)
-  RTLD_GLOBAL = ::T.let(nil, ::T.untyped)
-  RTLD_LAZY = ::T.let(nil, ::T.untyped)
-  RTLD_NOW = ::T.let(nil, ::T.untyped)
-  WINDOWS = ::T.let(nil, ::T.untyped)
-end
-
-class Fiddle::Function
-  STDCALL = ::T.let(nil, ::T.untyped)
 end
 
 class File
@@ -7229,101 +7201,7 @@ module FileUtils
 end
 
 class Formula
-  include ::FileUtils::StreamUtils_
   include ::Formula::Compat
-  def bottle_defined?(*args, &block); end
-
-  def bottle_disable_reason(*args, &block); end
-
-  def bottle_disabled?(*args, &block); end
-
-  def bottle_specification(*args, &block); end
-
-  def bottle_unneeded?(*args, &block); end
-
-  def bottled?(*args, &block); end
-
-  def cached_download(*args, &block); end
-
-  def clear_cache(*args, &block); end
-
-  def compiler_failures(*args, &block); end
-
-  def conflicts(*args, &block); end
-
-  def deprecated?(*args, &block); end
-
-  def deprecated_flags(*args, &block); end
-
-  def deprecated_options(*args, &block); end
-
-  def deprecation_reason(*args, &block); end
-
-  def deps(*args, &block); end
-
-  def desc(*args, &block); end
-
-  def disable_reason(*args, &block); end
-
-  def disabled?(*args, &block); end
-
-  def downloader(*args, &block); end
-
-  def env(*args, &block); end
-
-  def homepage(*args, &block); end
-
-  def keg_only_reason(*args, &block); end
-
-  def license(*args, &block); end
-
-  def livecheck(*args, &block); end
-
-  def livecheckable?(*args, &block); end
-
-  def option_defined?(*args, &block); end
-
-  def options(*args, &block); end
-
-  def patchlist(*args, &block); end
-
-  def pin(*args, &block); end
-
-  def pinnable?(*args, &block); end
-
-  def pinned?(*args, &block); end
-
-  def pinned_version(*args, &block); end
-
-  def plist_manual(*args, &block); end
-
-  def plist_startup(*args, &block); end
-
-  def pour_bottle_check_unsatisfied_reason(*args, &block); end
-
-  def requirements(*args, &block); end
-
-  def resource(*args, &block); end
-
-  def resources(*args, &block); end
-
-  def unpin(*args, &block); end
-
-  def uses_from_macos_elements(*args, &block); end
-
-  def version(*args, &block); end
-end
-
-class Formula
-  def self.desc(val=T.unsafe(nil)); end
-
-  def self.homepage(val=T.unsafe(nil)); end
-
-  def self.revision(val=T.unsafe(nil)); end
-
-  def self.sha256(val); end
-
-  def self.version_scheme(val=T.unsafe(nil)); end
 end
 
 module FormulaCellarChecks
@@ -7337,32 +7215,14 @@ class FormulaConflict
   def self.members(); end
 end
 
-class FormulaInstaller
-  def debug=(debug); end
+class Formulary::FromUrlLoader
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def force=(force); end
-
-  def force_bottle=(force_bottle); end
-
-  def git=(git); end
-
-  def hold_locks?(); end
-
-  def ignore_deps=(ignore_deps); end
-
-  def interactive=(interactive); end
-
-  def keep_tmp=(keep_tmp); end
-
-  def only_deps=(only_deps); end
-
-  def quiet=(quiet); end
-
-  def show_header=(show_header); end
-
-  def show_summary_heading=(show_summary_heading); end
-
-  def verbose=(verbose); end
+module Formulary
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module Forwardable
@@ -7993,11 +7853,27 @@ end
 module GetText
 end
 
+class GitHub::Actions::Annotation
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module GitHub::Actions
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module GitHub
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class HTTP::Cookie
   def self.parse(set_cookie, origin, options=T.unsafe(nil), &block); end
 end
 
 class Hardware::CPU
+  extend ::T::Private::Methods::SingletonMethodHooks
   def self.lm?(); end
 end
 
@@ -8058,22 +7934,33 @@ class Hash
   def self.try_convert(_); end
 end
 
+class HeadVersion
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 module Homebrew
   MAX_PORT = ::T.let(nil, ::T.untyped)
   MIN_PORT = ::T.let(nil, ::T.untyped)
+end
+
+class Homebrew::CLI::Args
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Homebrew::CLI::Parser
   include ::Homebrew::CLI::Parser::Compat
 end
 
-class Homebrew::Cleanup
-  def dry_run?(); end
-
-  def scrub?(); end
+class Homebrew::CLI::Parser
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module Homebrew::EnvConfig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
   def self.all_proxy(); end
 
   def self.arch(); end
@@ -8199,14 +8086,25 @@ module Homebrew::EnvConfig
   def self.verbose_using_dots?(); end
 end
 
-module Homebrew::MissingFormula
+class Homebrew::FormulaCreator
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Homebrew::Style::LineLocation
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Homebrew::TapAuditor
+  extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module Homebrew
-  extend ::FileUtils::StreamUtils_
-  extend ::DependenciesHelpers::Compat
-  def self.default_prefix?(prefix=T.unsafe(nil)); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+  extend ::Homebrew::Compat
 end
 
 module HostEnvironmentSimulatorHelper
@@ -10308,6 +10206,8 @@ class JSON::Ext::Parser
 end
 
 class JavaRequirement::CaskSuggestion
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
   def self.[](*_); end
 
   def self.members(); end
@@ -10319,34 +10219,25 @@ module Kconv
   UNKNOWN = ::T.let(nil, ::T.untyped)
 end
 
-class Keg
-  def /(*args, &block); end
+class Keg::ConflictError
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def abv(*args, &block); end
-
-  def directory?(*args, &block); end
-
-  def disk_usage(*args, &block); end
-
-  def exist?(*args, &block); end
-
-  def file_count(*args, &block); end
-
-  def find(*args, &block); end
-
-  def hash(*args, &block); end
-
-  def join(*args, &block); end
-
-  def rename(*args, &block); end
-
-  def to_s(*args, &block); end
+class Keg::DirectoryNotWritableError
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Keg::Relocation
   def self.[](*_); end
 
   def self.members(); end
+end
+
+class Keg
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class KegOnlyReason
@@ -10369,21 +10260,34 @@ module Kernel
 end
 
 module Kernel
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
   def self.at_exit(); end
 
-  def self.load(*_); end
+  def self.gem(dep, *reqs); end
 
-  def self.method_added(name); end
+  def self.load(*_); end
 
   def self.require(path); end
 end
 
-module Language::Haskell::Cabal
-  include ::Language::Haskell::Cabal::Compat
+module Language::Node
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Language::Python::Virtualenv
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class LoadError
   def is_missing?(location); end
+end
+
+class Locale
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Logger
@@ -10425,6 +10329,12 @@ class MachO::CPUTypeError
 end
 
 class MachO::CPUTypeError
+end
+
+class MachO::CodeSigningError
+end
+
+class MachO::CodeSigningError
 end
 
 class MachO::DylibIdMissingError
@@ -11546,7 +11456,7 @@ class MachO::MachOView
 end
 
 class MachO::MagicError
-  def initialize(num); end
+  def initialize(magic); end
 end
 
 class MachO::MagicError
@@ -11559,7 +11469,6 @@ class MachO::ModificationError
 end
 
 class MachO::NotAMachOError
-  def initialize(error); end
 end
 
 class MachO::NotAMachOError
@@ -11723,21 +11632,20 @@ module MachO::Utils
 end
 
 module MachO
+  def self.codesign!(filename); end
+
   def self.open(filename); end
-end
-
-module MachOShim
-  def delete_rpath(*args, &block); end
-
-  def dylib_id(*args, &block); end
-
-  def rpaths(*args, &block); end
 end
 
 Markdown = RDiscount
 
 module Marshal
   extend ::ActiveSupport::MarshalWithAutoloading
+end
+
+class Messages
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Method
@@ -11832,6 +11740,11 @@ module MethodSource
   def self.source_helper(source_location, name=T.unsafe(nil)); end
 
   def self.valid_expression?(str); end
+end
+
+class Migrator
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 MiniTest = Minitest
@@ -12538,6 +12451,11 @@ class Mktemp
   include ::FileUtils::StreamUtils_
 end
 
+class Mktemp
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class MockExpectationError
 end
 
@@ -13138,6 +13056,8 @@ class Net::HTTP::Persistent
   def self.detect_idle_timeout(uri, max=T.unsafe(nil)); end
 end
 
+Net::HTTP::ProxyMod = Net::HTTP::ProxyDelta
+
 class Net::HTTPAlreadyReported
   HAS_BODY = ::T.let(nil, ::T.untyped)
 end
@@ -13264,7 +13184,6 @@ end
 
 class NilClass
   include ::JSON::Ext::Generator::GeneratorMethods::NilClass
-  include ::NilClass::Compat
   def to_d(); end
 
   def try(method_name=T.unsafe(nil), *args); end
@@ -13341,12 +13260,42 @@ class Numeric
   TERABYTE = ::T.let(nil, ::T.untyped)
 end
 
+module OS::Linux::Glibc
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module OS::Linux::Kernel
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module OS::Linux
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module OS::Mac::CLT
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module OS::Mac::XQuartz
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module OS::Mac::Xcode
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class Object
   include ::ActiveSupport::Dependencies::Loadable
   include ::ActiveSupport::Tryable
   include ::Minitest::Expectations
-  include ::SystemCommand::Mixin
   include ::Utils::Curl
+  include ::SystemCommand::Mixin
   include ::ActiveSupport::ToJsonWithActiveSupportEncoder
   def acts_like?(duck); end
 
@@ -13375,18 +13324,14 @@ class Object
   def to_query(key); end
 
   def to_yaml(options=T.unsafe(nil)); end
-  APPLY_A = ::T.let(nil, ::T.untyped)
-  APPLY_B = ::T.let(nil, ::T.untyped)
-  APPLY_C = ::T.let(nil, ::T.untyped)
+  APPLE_GEM_HOME = ::T.let(nil, ::T.untyped)
   ARGF = ::T.let(nil, ::T.untyped)
   ARGV = ::T.let(nil, ::T.untyped)
-  BOTTLE_ERB = ::T.let(nil, ::T.untyped)
   BUG_REPORTS_URL = ::T.let(nil, ::T.untyped)
   COMMAND_DESC_WIDTH = ::T.let(nil, ::T.untyped)
   CROSS_COMPILING = ::T.let(nil, ::T.untyped)
   DEPRECATED_OFFICIAL_TAPS = ::T.let(nil, ::T.untyped)
   ENV = ::T.let(nil, ::T.untyped)
-  HEAD_URL = ::T.let(nil, ::T.untyped)
   HOMEBREW_BOTTLE_DEFAULT_DOMAIN = ::T.let(nil, ::T.untyped)
   HOMEBREW_BREW_DEFAULT_GIT_REMOTE = ::T.let(nil, ::T.untyped)
   HOMEBREW_BREW_FILE = ::T.let(nil, ::T.untyped)
@@ -13398,7 +13343,6 @@ class Object
   HOMEBREW_DATA_PATH = ::T.let(nil, ::T.untyped)
   HOMEBREW_DEFAULT_CACHE = ::T.let(nil, ::T.untyped)
   HOMEBREW_DEFAULT_LOGS = ::T.let(nil, ::T.untyped)
-  HOMEBREW_DEFAULT_PREFIX = ::T.let(nil, ::T.untyped)
   HOMEBREW_DEFAULT_TEMP = ::T.let(nil, ::T.untyped)
   HOMEBREW_LIBRARY = ::T.let(nil, ::T.untyped)
   HOMEBREW_LIBRARY_PATH = ::T.let(nil, ::T.untyped)
@@ -13409,10 +13353,6 @@ class Object
   HOMEBREW_PATCHELF_RB_WRITE = ::T.let(nil, ::T.untyped)
   HOMEBREW_PINNED_KEGS = ::T.let(nil, ::T.untyped)
   HOMEBREW_PREFIX = ::T.let(nil, ::T.untyped)
-  HOMEBREW_PRODUCT = ::T.let(nil, ::T.untyped)
-  HOMEBREW_PULL_API_REGEX = ::T.let(nil, ::T.untyped)
-  HOMEBREW_PULL_OR_COMMIT_URL_REGEX = ::T.let(nil, ::T.untyped)
-  HOMEBREW_RELEASES_URL_REGEX = ::T.let(nil, ::T.untyped)
   HOMEBREW_REPOSITORY = ::T.let(nil, ::T.untyped)
   HOMEBREW_REQUIRED_RUBY_VERSION = ::T.let(nil, ::T.untyped)
   HOMEBREW_SHIMS_PATH = ::T.let(nil, ::T.untyped)
@@ -13421,49 +13361,32 @@ class Object
   HOMEBREW_TAP_FORMULA_REGEX = ::T.let(nil, ::T.untyped)
   HOMEBREW_TAP_PATH_REGEX = ::T.let(nil, ::T.untyped)
   HOMEBREW_TEMP = ::T.let(nil, ::T.untyped)
-  HOMEBREW_USER_AGENT_CURL = ::T.let(nil, ::T.untyped)
-  HOMEBREW_USER_AGENT_FAKE_SAFARI = ::T.let(nil, ::T.untyped)
-  HOMEBREW_USER_AGENT_RUBY = ::T.let(nil, ::T.untyped)
-  HOMEBREW_VERSION = ::T.let(nil, ::T.untyped)
-  HOMEBREW_WWW = ::T.let(nil, ::T.untyped)
-  HOMEPAGE_URL = ::T.let(nil, ::T.untyped)
-  LINUXBREW_DEFAULT_PREFIX = ::T.let(nil, ::T.untyped)
-  MAXIMUM_STRING_MATCHES = ::T.let(nil, ::T.untyped)
   OFFICIAL_CASK_TAPS = ::T.let(nil, ::T.untyped)
   OFFICIAL_CMD_TAPS = ::T.let(nil, ::T.untyped)
   OPTION_DESC_WIDTH = ::T.let(nil, ::T.untyped)
-  ORIGINAL_PATHS = ::T.let(nil, ::T.untyped)
   OS_VERSION = ::T.let(nil, ::T.untyped)
-  PATCH_A_CONTENTS = ::T.let(nil, ::T.untyped)
   PATCH_A_SHA256 = ::T.let(nil, ::T.untyped)
-  PATCH_B_CONTENTS = ::T.let(nil, ::T.untyped)
   PATCH_B_SHA256 = ::T.let(nil, ::T.untyped)
-  PATCH_URL_A = ::T.let(nil, ::T.untyped)
-  PATCH_URL_B = ::T.let(nil, ::T.untyped)
   REQUIRED_RUBY_X = ::T.let(nil, ::T.untyped)
   REQUIRED_RUBY_Y = ::T.let(nil, ::T.untyped)
-  RUBY_BIN = ::T.let(nil, ::T.untyped)
   RUBY_COPYRIGHT = ::T.let(nil, ::T.untyped)
   RUBY_DESCRIPTION = ::T.let(nil, ::T.untyped)
   RUBY_ENGINE = ::T.let(nil, ::T.untyped)
   RUBY_ENGINE_VERSION = ::T.let(nil, ::T.untyped)
+  RUBY_FRAMEWORK = ::T.let(nil, ::T.untyped)
+  RUBY_FRAMEWORK_VERSION = ::T.let(nil, ::T.untyped)
   RUBY_PATCHLEVEL = ::T.let(nil, ::T.untyped)
-  RUBY_PATH = ::T.let(nil, ::T.untyped)
   RUBY_PLATFORM = ::T.let(nil, ::T.untyped)
   RUBY_RELEASE_DATE = ::T.let(nil, ::T.untyped)
   RUBY_REVISION = ::T.let(nil, ::T.untyped)
   RUBY_VERSION = ::T.let(nil, ::T.untyped)
   RUBY_X = ::T.let(nil, ::T.untyped)
   RUBY_Y = ::T.let(nil, ::T.untyped)
-  STABLE_URL = ::T.let(nil, ::T.untyped)
   STDERR = ::T.let(nil, ::T.untyped)
   STDIN = ::T.let(nil, ::T.untyped)
   STDOUT = ::T.let(nil, ::T.untyped)
   TESTBALL_PATCHES_SHA256 = ::T.let(nil, ::T.untyped)
-  TESTBALL_PATCHES_URL = ::T.let(nil, ::T.untyped)
   TESTBALL_SHA256 = ::T.let(nil, ::T.untyped)
-  TESTBALL_URL = ::T.let(nil, ::T.untyped)
-  TEST_DIRECTORIES = ::T.let(nil, ::T.untyped)
   TEST_FIXTURE_DIR = ::T.let(nil, ::T.untyped)
   TEST_SHA1 = ::T.let(nil, ::T.untyped)
   TEST_SHA256 = ::T.let(nil, ::T.untyped)
@@ -13493,10 +13416,6 @@ class OpenSSL::BN
   def negative?(); end
 end
 
-module OpenSSL::Buffering
-  include ::ActiveSupport::ToJsonWithActiveSupportEncoder
-end
-
 module OpenSSL::KDF
 end
 
@@ -13507,11 +13426,7 @@ class OpenSSL::KDF::KDFError
 end
 
 module OpenSSL::KDF
-  def self.hkdf(*_); end
-
   def self.pbkdf2_hmac(*_); end
-
-  def self.scrypt(*_); end
 end
 
 class OpenSSL::OCSP::Request
@@ -13520,29 +13435,20 @@ end
 
 OpenSSL::PKCS7::Signer = OpenSSL::PKCS7::SignerInfo
 
-class OpenSSL::PKey::EC
-  EXPLICIT_CURVE = ::T.let(nil, ::T.untyped)
-end
-
 class OpenSSL::PKey::EC::Point
   def to_octet_string(_); end
 end
 
 module OpenSSL::SSL
-  OP_ALLOW_NO_DHE_KEX = ::T.let(nil, ::T.untyped)
   OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION = ::T.let(nil, ::T.untyped)
   OP_CRYPTOPRO_TLSEXT_BUG = ::T.let(nil, ::T.untyped)
   OP_LEGACY_SERVER_CONNECT = ::T.let(nil, ::T.untyped)
-  OP_NO_ENCRYPT_THEN_MAC = ::T.let(nil, ::T.untyped)
-  OP_NO_RENEGOTIATION = ::T.let(nil, ::T.untyped)
-  OP_NO_TLSv1_3 = ::T.let(nil, ::T.untyped)
   OP_SAFARI_ECDHE_ECDSA_BUG = ::T.let(nil, ::T.untyped)
   OP_TLSEXT_PADDING = ::T.let(nil, ::T.untyped)
   SSL2_VERSION = ::T.let(nil, ::T.untyped)
   SSL3_VERSION = ::T.let(nil, ::T.untyped)
   TLS1_1_VERSION = ::T.let(nil, ::T.untyped)
   TLS1_2_VERSION = ::T.let(nil, ::T.untyped)
-  TLS1_3_VERSION = ::T.let(nil, ::T.untyped)
   TLS1_VERSION = ::T.let(nil, ::T.untyped)
 end
 
@@ -13556,8 +13462,6 @@ class OpenSSL::SSL::SSLContext
   def alpn_select_cb(); end
 
   def alpn_select_cb=(alpn_select_cb); end
-
-  def enable_fallback_scsv(); end
 
   def max_version=(version); end
 
@@ -13658,13 +13562,14 @@ module OpenURI
   def self.scan_open_optional_arguments(*rest); end
 end
 
-class OsxfuseRequirement
+class Option
   extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
 end
 
-class PATH
-  def each(*args, &block); end
+class Options
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class PATH
@@ -15148,16 +15053,9 @@ class Pathname
   def make_symlink(_); end
 end
 
-class PkgVersion
-  def major(*args, &block); end
-
-  def major_minor(*args, &block); end
-
-  def major_minor_patch(*args, &block); end
-
-  def minor(*args, &block); end
-
-  def patch(*args, &block); end
+class Pathname
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Proc
@@ -18477,6 +18375,16 @@ module Psych
   def self.load_tags=(load_tags); end
 
   def self.remove_type(type_tag); end
+end
+
+class PyPI::Package
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module PyPI
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class RDiscount
@@ -22216,15 +22124,11 @@ module RSpec::Matchers
 
   def a_hash_including(*args, &block); end
 
-  def a_json_string(*expected, &block_arg); end
-
   def a_kind_of(*args, &block); end
 
   def a_nil_value(*args, &block); end
 
   def a_range_covering(*args, &block); end
-
-  def a_string_containing(*args, &block); end
 
   def a_string_ending_with(*args, &block); end
 
@@ -22264,13 +22168,9 @@ module RSpec::Matchers
 
   def an_object_satisfying(*args, &block); end
 
-  def array_including_cons(*expected, &block_arg); end
-
   def be(*args); end
 
   def be_a(klass); end
-
-  def be_a_failure(*args, &block); end
 
   def be_a_kind_of(expected); end
 
@@ -22330,8 +22230,6 @@ module RSpec::Matchers
 
   def have_attributes(expected); end
 
-  def have_failed(*args, &block); end
-
   def having_attributes(*args, &block); end
 
   def include(*expected); end
@@ -22345,8 +22243,6 @@ module RSpec::Matchers
   def match_regex(*args, &block); end
 
   def matching(*args, &block); end
-
-  def not_to_output(*args, &block); end
 
   def output(expected=T.unsafe(nil)); end
 
@@ -25197,6 +25093,25 @@ end
 
 RSpec::SharedContext = RSpec::Core::SharedContext
 
+module RSpec::Sorbet
+end
+
+module RSpec::Sorbet::Doubles
+  def allow_doubles!(); end
+
+  def allow_instance_doubles!(); end
+  INLINE_DOUBLE_REGEX = ::T.let(nil, ::T.untyped)
+  TYPED_ARRAY_MESSAGE = ::T.let(nil, ::T.untyped)
+  VERIFYING_DOUBLE_OR_DOUBLE = ::T.let(nil, ::T.untyped)
+end
+
+module RSpec::Sorbet::Doubles
+end
+
+module RSpec::Sorbet
+  extend ::RSpec::Sorbet::Doubles
+end
+
 module RSpec::Support
   DEFAULT_FAILURE_NOTIFIER = ::T.let(nil, ::T.untyped)
   DEFAULT_WARNING_NOTIFIER = ::T.let(nil, ::T.untyped)
@@ -25838,16 +25753,22 @@ module Readline
   def self.completion_quote_character(); end
 end
 
-class ReporterHub
-  def empty?(*args, &block); end
+class Regexp::Expression::Base
+  include ::RuboCop::Ext::RegexpParser::Expression::Base
+end
+
+class Regexp::Expression::CharacterSet
+  include ::RuboCop::Ext::RegexpParser::Expression::CharacterSet
 end
 
 class Requirement
-  def self.cask(val=T.unsafe(nil)); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def self.download(val=T.unsafe(nil)); end
-
-  def self.fatal(val=T.unsafe(nil)); end
+class Requirements
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Resolv::DNS
@@ -25928,19 +25849,8 @@ class Resource::Partial
 end
 
 class ResourceStageContext
-  def mirrors(*args, &block); end
-
-  def retain!(*args, &block); end
-
-  def source_modified_time(*args, &block); end
-
-  def specs(*args, &block); end
-
-  def url(*args, &block); end
-
-  def using(*args, &block); end
-
-  def version(*args, &block); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module Ronn
@@ -26230,18 +26140,17 @@ class RuboCop::AST::NodePattern::Parser
 end
 
 module RuboCop::AST::NodePattern::Sets
-  SET_AND_RETURN_AND_RAISE_AND_THROW_ETC = ::T.let(nil, ::T.untyped)
   SET_BUILD_RECOMMENDED_TEST_OPTIONAL = ::T.let(nil, ::T.untyped)
   SET_DEPENDS_ON_USES_FROM_MACOS = ::T.let(nil, ::T.untyped)
   SET_INCLUDE_WITH_WITHOUT = ::T.let(nil, ::T.untyped)
-  SET_PROC_LAMBDA = ::T.let(nil, ::T.untyped)
-  SET_RECEIVE_RECEIVE_MESSAGE_CHAIN = ::T.let(nil, ::T.untyped)
   SET_SYSTEM_SHELL_OUTPUT_PIPE_OUTPUT = ::T.let(nil, ::T.untyped)
   SET_WITH_WITHOUT = ::T.let(nil, ::T.untyped)
+  SET___METHOD_____CALLEE__ = ::T.let(nil, ::T.untyped)
 end
 
-class RuboCop::Cask::AST::CaskBlock
-  def cask_body(*args, &block); end
+class RuboCop::Cask::AST::CaskHeader
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class RuboCop::Cask::AST::Stanza
@@ -26289,8 +26198,6 @@ class RuboCop::Cask::AST::Stanza
 
   def name?(); end
 
-  def parent_node(*args, &block); end
-
   def pkg?(); end
 
   def postflight?(); end
@@ -26307,13 +26214,7 @@ class RuboCop::Cask::AST::Stanza
 
   def sha256?(); end
 
-  def source(*args, &block); end
-
-  def source_with_comments(*args, &block); end
-
   def stage_only?(); end
-
-  def stanza_name(*args, &block); end
 
   def suite?(); end
 
@@ -26334,42 +26235,9 @@ class RuboCop::Cask::AST::Stanza
   def zap?(); end
 end
 
-class RuboCop::Cop::Cask::HomepageMatchesUrl
-  def cask_node(*args, &block); end
-
-  def sorted_toplevel_stanzas(*args, &block); end
-
-  def toplevel_stanzas(*args, &block); end
-end
-
 class RuboCop::Cop::Cask::NoDslVersion
-  def header_range(*args, &block); end
-
-  def header_str(*args, &block); end
-
-  def preferred_header_str(*args, &block); end
-end
-
-module RuboCop::Cop::Cask::OnDescStanza
-  def toplevel_stanzas(*args, &block); end
-end
-
-module RuboCop::Cop::Cask::OnHomepageStanza
-  def toplevel_stanzas(*args, &block); end
-end
-
-class RuboCop::Cop::Cask::StanzaGrouping
-  def cask_node(*args, &block); end
-
-  def toplevel_stanzas(*args, &block); end
-end
-
-class RuboCop::Cop::Cask::StanzaOrder
-  def cask_node(*args, &block); end
-
-  def sorted_toplevel_stanzas(*args, &block); end
-
-  def toplevel_stanzas(*args, &block); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class RuboCop::Cop::Cop
@@ -26436,6 +26304,16 @@ end
 
 class RuboCop::Cop::FormulaAudit::Patches
   def patch_data?(param0); end
+end
+
+class RuboCop::Cop::FormulaAudit::Patches
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class RuboCop::Cop::FormulaAudit::PyPiUrls
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class RuboCop::Cop::FormulaAudit::Test
@@ -27477,6 +27355,11 @@ class RubyVM
   def self.resolve_feature_path(_); end
 end
 
+class Sandbox
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 ScanError = StringScanner::Error
 
 class Set
@@ -27503,11 +27386,8 @@ class Set
 end
 
 module SharedEnvExtension
-  def clang(); end
-
-  def gcc(); end
-
-  def llvm_clang(); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module SimpleCov
@@ -28278,36 +28158,186 @@ module Singleton
   def self.__init__(klass); end
 end
 
-class SoftwareSpec
-  def cached_download(*args, &block); end
+class Socket
+  AF_CCITT = ::T.let(nil, ::T.untyped)
+  AF_CHAOS = ::T.let(nil, ::T.untyped)
+  AF_CNT = ::T.let(nil, ::T.untyped)
+  AF_COIP = ::T.let(nil, ::T.untyped)
+  AF_DATAKIT = ::T.let(nil, ::T.untyped)
+  AF_DLI = ::T.let(nil, ::T.untyped)
+  AF_E164 = ::T.let(nil, ::T.untyped)
+  AF_ECMA = ::T.let(nil, ::T.untyped)
+  AF_HYLINK = ::T.let(nil, ::T.untyped)
+  AF_IMPLINK = ::T.let(nil, ::T.untyped)
+  AF_ISO = ::T.let(nil, ::T.untyped)
+  AF_LAT = ::T.let(nil, ::T.untyped)
+  AF_LINK = ::T.let(nil, ::T.untyped)
+  AF_NATM = ::T.let(nil, ::T.untyped)
+  AF_NDRV = ::T.let(nil, ::T.untyped)
+  AF_NETBIOS = ::T.let(nil, ::T.untyped)
+  AF_NS = ::T.let(nil, ::T.untyped)
+  AF_OSI = ::T.let(nil, ::T.untyped)
+  AF_PPP = ::T.let(nil, ::T.untyped)
+  AF_PUP = ::T.let(nil, ::T.untyped)
+  AF_SIP = ::T.let(nil, ::T.untyped)
+  AF_SYSTEM = ::T.let(nil, ::T.untyped)
+  AI_DEFAULT = ::T.let(nil, ::T.untyped)
+  AI_MASK = ::T.let(nil, ::T.untyped)
+  AI_V4MAPPED_CFG = ::T.let(nil, ::T.untyped)
+  EAI_BADHINTS = ::T.let(nil, ::T.untyped)
+  EAI_MAX = ::T.let(nil, ::T.untyped)
+  EAI_PROTOCOL = ::T.let(nil, ::T.untyped)
+  IFF_ALTPHYS = ::T.let(nil, ::T.untyped)
+  IFF_LINK0 = ::T.let(nil, ::T.untyped)
+  IFF_LINK1 = ::T.let(nil, ::T.untyped)
+  IFF_LINK2 = ::T.let(nil, ::T.untyped)
+  IFF_OACTIVE = ::T.let(nil, ::T.untyped)
+  IFF_SIMPLEX = ::T.let(nil, ::T.untyped)
+  IPPROTO_EON = ::T.let(nil, ::T.untyped)
+  IPPROTO_GGP = ::T.let(nil, ::T.untyped)
+  IPPROTO_HELLO = ::T.let(nil, ::T.untyped)
+  IPPROTO_MAX = ::T.let(nil, ::T.untyped)
+  IPPROTO_ND = ::T.let(nil, ::T.untyped)
+  IPPROTO_XTP = ::T.let(nil, ::T.untyped)
+  IPV6_DONTFRAG = ::T.let(nil, ::T.untyped)
+  IPV6_PATHMTU = ::T.let(nil, ::T.untyped)
+  IPV6_RECVPATHMTU = ::T.let(nil, ::T.untyped)
+  IPV6_USE_MIN_MTU = ::T.let(nil, ::T.untyped)
+  IP_PORTRANGE = ::T.let(nil, ::T.untyped)
+  IP_RECVDSTADDR = ::T.let(nil, ::T.untyped)
+  IP_RECVIF = ::T.let(nil, ::T.untyped)
+  LOCAL_PEERCRED = ::T.let(nil, ::T.untyped)
+  MSG_EOF = ::T.let(nil, ::T.untyped)
+  MSG_FLUSH = ::T.let(nil, ::T.untyped)
+  MSG_HAVEMORE = ::T.let(nil, ::T.untyped)
+  MSG_HOLD = ::T.let(nil, ::T.untyped)
+  MSG_RCVMORE = ::T.let(nil, ::T.untyped)
+  MSG_SEND = ::T.let(nil, ::T.untyped)
+  PF_CCITT = ::T.let(nil, ::T.untyped)
+  PF_CHAOS = ::T.let(nil, ::T.untyped)
+  PF_CNT = ::T.let(nil, ::T.untyped)
+  PF_COIP = ::T.let(nil, ::T.untyped)
+  PF_DATAKIT = ::T.let(nil, ::T.untyped)
+  PF_DLI = ::T.let(nil, ::T.untyped)
+  PF_ECMA = ::T.let(nil, ::T.untyped)
+  PF_HYLINK = ::T.let(nil, ::T.untyped)
+  PF_IMPLINK = ::T.let(nil, ::T.untyped)
+  PF_ISO = ::T.let(nil, ::T.untyped)
+  PF_LAT = ::T.let(nil, ::T.untyped)
+  PF_LINK = ::T.let(nil, ::T.untyped)
+  PF_NATM = ::T.let(nil, ::T.untyped)
+  PF_NDRV = ::T.let(nil, ::T.untyped)
+  PF_NETBIOS = ::T.let(nil, ::T.untyped)
+  PF_NS = ::T.let(nil, ::T.untyped)
+  PF_OSI = ::T.let(nil, ::T.untyped)
+  PF_PIP = ::T.let(nil, ::T.untyped)
+  PF_PPP = ::T.let(nil, ::T.untyped)
+  PF_PUP = ::T.let(nil, ::T.untyped)
+  PF_RTIP = ::T.let(nil, ::T.untyped)
+  PF_SIP = ::T.let(nil, ::T.untyped)
+  PF_SYSTEM = ::T.let(nil, ::T.untyped)
+  PF_XTP = ::T.let(nil, ::T.untyped)
+  SCM_CREDS = ::T.let(nil, ::T.untyped)
+  SO_DONTTRUNC = ::T.let(nil, ::T.untyped)
+  SO_NKE = ::T.let(nil, ::T.untyped)
+  SO_NOSIGPIPE = ::T.let(nil, ::T.untyped)
+  SO_NREAD = ::T.let(nil, ::T.untyped)
+  SO_USELOOPBACK = ::T.let(nil, ::T.untyped)
+  SO_WANTMORE = ::T.let(nil, ::T.untyped)
+  SO_WANTOOBFLAG = ::T.let(nil, ::T.untyped)
+  TCP_NOOPT = ::T.let(nil, ::T.untyped)
+  TCP_NOPUSH = ::T.let(nil, ::T.untyped)
+end
 
-  def checksum(*args, &block); end
-
-  def clear_cache(*args, &block); end
-
-  def download_name(*args, &block); end
-
-  def downloader(*args, &block); end
-
-  def fetch(*args, &block); end
-
-  def mirror(*args, &block); end
-
-  def mirrors(*args, &block); end
-
-  def sha256(*args, &block); end
-
-  def source_modified_time(*args, &block); end
-
-  def specs(*args, &block); end
-
-  def stage(*args, &block); end
-
-  def using(*args, &block); end
-
-  def verify_download_integrity(*args, &block); end
-
-  def version(*args, &block); end
+module Socket::Constants
+  AF_CCITT = ::T.let(nil, ::T.untyped)
+  AF_CHAOS = ::T.let(nil, ::T.untyped)
+  AF_CNT = ::T.let(nil, ::T.untyped)
+  AF_COIP = ::T.let(nil, ::T.untyped)
+  AF_DATAKIT = ::T.let(nil, ::T.untyped)
+  AF_DLI = ::T.let(nil, ::T.untyped)
+  AF_E164 = ::T.let(nil, ::T.untyped)
+  AF_ECMA = ::T.let(nil, ::T.untyped)
+  AF_HYLINK = ::T.let(nil, ::T.untyped)
+  AF_IMPLINK = ::T.let(nil, ::T.untyped)
+  AF_ISO = ::T.let(nil, ::T.untyped)
+  AF_LAT = ::T.let(nil, ::T.untyped)
+  AF_LINK = ::T.let(nil, ::T.untyped)
+  AF_NATM = ::T.let(nil, ::T.untyped)
+  AF_NDRV = ::T.let(nil, ::T.untyped)
+  AF_NETBIOS = ::T.let(nil, ::T.untyped)
+  AF_NS = ::T.let(nil, ::T.untyped)
+  AF_OSI = ::T.let(nil, ::T.untyped)
+  AF_PPP = ::T.let(nil, ::T.untyped)
+  AF_PUP = ::T.let(nil, ::T.untyped)
+  AF_SIP = ::T.let(nil, ::T.untyped)
+  AF_SYSTEM = ::T.let(nil, ::T.untyped)
+  AI_DEFAULT = ::T.let(nil, ::T.untyped)
+  AI_MASK = ::T.let(nil, ::T.untyped)
+  AI_V4MAPPED_CFG = ::T.let(nil, ::T.untyped)
+  EAI_BADHINTS = ::T.let(nil, ::T.untyped)
+  EAI_MAX = ::T.let(nil, ::T.untyped)
+  EAI_PROTOCOL = ::T.let(nil, ::T.untyped)
+  IFF_ALTPHYS = ::T.let(nil, ::T.untyped)
+  IFF_LINK0 = ::T.let(nil, ::T.untyped)
+  IFF_LINK1 = ::T.let(nil, ::T.untyped)
+  IFF_LINK2 = ::T.let(nil, ::T.untyped)
+  IFF_OACTIVE = ::T.let(nil, ::T.untyped)
+  IFF_SIMPLEX = ::T.let(nil, ::T.untyped)
+  IPPROTO_EON = ::T.let(nil, ::T.untyped)
+  IPPROTO_GGP = ::T.let(nil, ::T.untyped)
+  IPPROTO_HELLO = ::T.let(nil, ::T.untyped)
+  IPPROTO_MAX = ::T.let(nil, ::T.untyped)
+  IPPROTO_ND = ::T.let(nil, ::T.untyped)
+  IPPROTO_XTP = ::T.let(nil, ::T.untyped)
+  IPV6_DONTFRAG = ::T.let(nil, ::T.untyped)
+  IPV6_PATHMTU = ::T.let(nil, ::T.untyped)
+  IPV6_RECVPATHMTU = ::T.let(nil, ::T.untyped)
+  IPV6_USE_MIN_MTU = ::T.let(nil, ::T.untyped)
+  IP_PORTRANGE = ::T.let(nil, ::T.untyped)
+  IP_RECVDSTADDR = ::T.let(nil, ::T.untyped)
+  IP_RECVIF = ::T.let(nil, ::T.untyped)
+  LOCAL_PEERCRED = ::T.let(nil, ::T.untyped)
+  MSG_EOF = ::T.let(nil, ::T.untyped)
+  MSG_FLUSH = ::T.let(nil, ::T.untyped)
+  MSG_HAVEMORE = ::T.let(nil, ::T.untyped)
+  MSG_HOLD = ::T.let(nil, ::T.untyped)
+  MSG_RCVMORE = ::T.let(nil, ::T.untyped)
+  MSG_SEND = ::T.let(nil, ::T.untyped)
+  PF_CCITT = ::T.let(nil, ::T.untyped)
+  PF_CHAOS = ::T.let(nil, ::T.untyped)
+  PF_CNT = ::T.let(nil, ::T.untyped)
+  PF_COIP = ::T.let(nil, ::T.untyped)
+  PF_DATAKIT = ::T.let(nil, ::T.untyped)
+  PF_DLI = ::T.let(nil, ::T.untyped)
+  PF_ECMA = ::T.let(nil, ::T.untyped)
+  PF_HYLINK = ::T.let(nil, ::T.untyped)
+  PF_IMPLINK = ::T.let(nil, ::T.untyped)
+  PF_ISO = ::T.let(nil, ::T.untyped)
+  PF_LAT = ::T.let(nil, ::T.untyped)
+  PF_LINK = ::T.let(nil, ::T.untyped)
+  PF_NATM = ::T.let(nil, ::T.untyped)
+  PF_NDRV = ::T.let(nil, ::T.untyped)
+  PF_NETBIOS = ::T.let(nil, ::T.untyped)
+  PF_NS = ::T.let(nil, ::T.untyped)
+  PF_OSI = ::T.let(nil, ::T.untyped)
+  PF_PIP = ::T.let(nil, ::T.untyped)
+  PF_PPP = ::T.let(nil, ::T.untyped)
+  PF_PUP = ::T.let(nil, ::T.untyped)
+  PF_RTIP = ::T.let(nil, ::T.untyped)
+  PF_SIP = ::T.let(nil, ::T.untyped)
+  PF_SYSTEM = ::T.let(nil, ::T.untyped)
+  PF_XTP = ::T.let(nil, ::T.untyped)
+  SCM_CREDS = ::T.let(nil, ::T.untyped)
+  SO_DONTTRUNC = ::T.let(nil, ::T.untyped)
+  SO_NKE = ::T.let(nil, ::T.untyped)
+  SO_NOSIGPIPE = ::T.let(nil, ::T.untyped)
+  SO_NREAD = ::T.let(nil, ::T.untyped)
+  SO_USELOOPBACK = ::T.let(nil, ::T.untyped)
+  SO_WANTMORE = ::T.let(nil, ::T.untyped)
+  SO_WANTOOBFLAG = ::T.let(nil, ::T.untyped)
+  TCP_NOOPT = ::T.let(nil, ::T.untyped)
+  TCP_NOPUSH = ::T.let(nil, ::T.untyped)
 end
 
 class SortedSet
@@ -28318,8 +28348,134 @@ class SortedSet
   def self.setup(); end
 end
 
+class Spoom::Cli::Bump
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Spoom::Cli::Helper
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class Spoom::Cli::Main
   extend ::T::Sig
+end
+
+class Spoom::Coverage::D3::Base
+  extend ::T::Sig
+  extend ::T::Helpers
+  extend ::T::Private::Abstract::Hooks
+  extend ::T::InterfaceWrapper::Helpers
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Spoom::Coverage::D3
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::Coverage::Snapshot
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::Coverage::Template
+  extend ::T::Sig
+  extend ::T::Helpers
+  extend ::T::Private::Abstract::Hooks
+  extend ::T::InterfaceWrapper::Helpers
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Spoom::Coverage
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::FileTree::Node
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::FileTree
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Spoom::Git
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::LSP::Diagnostic
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::LSP::DocumentSymbol
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::LSP::Hover
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::LSP::Location
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::LSP::Position
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Spoom::LSP::PrintableSymbol
+  extend ::T::Sig
+  extend ::T::Helpers
+  extend ::T::Private::Abstract::Hooks
+  extend ::T::InterfaceWrapper::Helpers
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::LSP::Range
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::LSP::SignatureHelp
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Spoom::Printer
+  extend ::T::Sig
+  extend ::T::Helpers
+  extend ::T::Private::Abstract::Hooks
+  extend ::T::InterfaceWrapper::Helpers
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Spoom::Sorbet::Config
@@ -28340,7 +28496,13 @@ class Spoom::Sorbet::Errors::Parser
   extend ::T::Private::Methods::SingletonMethodHooks
 end
 
-class Spoom::Sorbet::Metrics
+module Spoom::Sorbet::MetricsParser
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Spoom::Sorbet::Sigils
   extend ::T::Sig
   extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
@@ -28352,20 +28514,13 @@ module Spoom::Sorbet
   extend ::T::Private::Methods::SingletonMethodHooks
 end
 
-module Stdenv
-  def O0(); end
-
-  def O1(); end
-
-  def O2(); end
-
-  def O3(); end
-
-  def Os(); end
+class Spoom::Timeline
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class String
-  include ::String::Compat
   def acts_like_string?(); end
 
   def at(position); end
@@ -28561,6 +28716,11 @@ class String
   ENCODED_BLANKS = ::T.let(nil, ::T.untyped)
 end
 
+class String
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class StringInreplaceExtension
   extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
@@ -28649,15 +28809,8 @@ Struct::Passwd = Etc::Passwd
 Struct::Tms = Process::Tms
 
 module Superenv
-  def O0(); end
-
-  def O1(); end
-
-  def O2(); end
-
-  def O3(); end
-
-  def Os(); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class SynchronizedDelegator
@@ -28671,23 +28824,73 @@ end
 class SynchronizedDelegator
 end
 
+class SystemCommand::Result
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class SystemCommand
-  def must_succeed?(); end
-
-  def print_stderr?(); end
-
-  def print_stdout?(); end
-
-  def sudo?(); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module TZInfo
 end
 
+class TZInfo::AbsoluteDayOfYearTransitionRule
+  def get_day(year); end
+
+  def initialize(day, transition_at=T.unsafe(nil)); end
+
+  def is_always_first_day_of_year?(); end
+
+  def is_always_last_day_of_year?(); end
+end
+
+class TZInfo::AbsoluteDayOfYearTransitionRule
+end
+
 class TZInfo::AmbiguousTime
 end
 
 class TZInfo::AmbiguousTime
+end
+
+class TZInfo::AnnualRules
+  def dst_end_rule(); end
+
+  def dst_offset(); end
+
+  def dst_start_rule(); end
+
+  def initialize(std_offset, dst_offset, dst_start_rule, dst_end_rule); end
+
+  def std_offset(); end
+
+  def transitions(year); end
+end
+
+class TZInfo::AnnualRules::Transition
+  def at(); end
+
+  def at=(_); end
+
+  def offset(); end
+
+  def offset=(_); end
+
+  def previous_offset(); end
+
+  def previous_offset=(_); end
+end
+
+class TZInfo::AnnualRules::Transition
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class TZInfo::AnnualRules
 end
 
 class TZInfo::Country
@@ -28827,6 +29030,41 @@ end
 class TZInfo::DataTimezoneInfo
 end
 
+class TZInfo::DayOfMonthTransitionRule
+  def get_day(year); end
+
+  def initialize(month, week, day_of_week, transition_at=T.unsafe(nil)); end
+
+  def offset_start(); end
+end
+
+class TZInfo::DayOfMonthTransitionRule
+end
+
+class TZInfo::DayOfWeekTransitionRule
+  def day_of_week(); end
+
+  def initialize(month, day_of_week, transition_at); end
+
+  def is_always_first_day_of_year?(); end
+
+  def is_always_last_day_of_year?(); end
+
+  def month(); end
+end
+
+class TZInfo::DayOfWeekTransitionRule
+end
+
+class TZInfo::DayOfYearTransitionRule
+  def initialize(day, transition_at); end
+
+  def seconds(); end
+end
+
+class TZInfo::DayOfYearTransitionRule
+end
+
 class TZInfo::InfoTimezone
   def info(); end
 
@@ -28849,6 +29087,12 @@ end
 class TZInfo::InvalidDataSource
 end
 
+class TZInfo::InvalidPosixTimeZone
+end
+
+class TZInfo::InvalidPosixTimeZone
+end
+
 class TZInfo::InvalidTimezoneIdentifier
 end
 
@@ -28865,6 +29109,30 @@ class TZInfo::InvalidZoneinfoFile
 end
 
 class TZInfo::InvalidZoneinfoFile
+end
+
+class TZInfo::JulianDayOfYearTransitionRule
+  def get_day(year); end
+
+  def initialize(day, transition_at=T.unsafe(nil)); end
+
+  def is_always_first_day_of_year?(); end
+
+  def is_always_last_day_of_year?(); end
+  LEAP = ::T.let(nil, ::T.untyped)
+  YEAR = ::T.let(nil, ::T.untyped)
+end
+
+class TZInfo::JulianDayOfYearTransitionRule
+end
+
+class TZInfo::LastDayOfMonthTransitionRule
+  def get_day(year); end
+
+  def initialize(month, day_of_week, transition_at=T.unsafe(nil)); end
+end
+
+class TZInfo::LastDayOfMonthTransitionRule
 end
 
 class TZInfo::LinkedTimezone
@@ -28899,6 +29167,13 @@ class TZInfo::PeriodNotFound
 end
 
 class TZInfo::PeriodNotFound
+end
+
+class TZInfo::PosixTimeZoneParser
+  def parse(tz_string); end
+end
+
+class TZInfo::PosixTimeZoneParser
 end
 
 module TZInfo::RubyCoreSupport
@@ -28980,6 +29255,8 @@ class TZInfo::TimeOrDateTime
   def to_time(); end
 
   def usec(); end
+
+  def wday(); end
 
   def year(); end
 end
@@ -29269,6 +29546,25 @@ end
 class TZInfo::TransitionDataTimezoneInfo
 end
 
+class TZInfo::TransitionRule
+  def ==(r); end
+
+  def at(offset, year); end
+
+  def eql?(r); end
+
+  def hash_args(); end
+
+  def initialize(transition_at); end
+
+  def new_time_or_datetime(year, month=T.unsafe(nil), day=T.unsafe(nil)); end
+
+  def transition_at(); end
+end
+
+class TZInfo::TransitionRule
+end
+
 class TZInfo::UnknownTimezone
 end
 
@@ -29309,7 +29605,8 @@ class TZInfo::ZoneinfoDirectoryNotFound
 end
 
 class TZInfo::ZoneinfoTimezoneInfo
-  def initialize(identifier, file_path); end
+  def initialize(identifier, file_path, posix_tz_parser); end
+  GENERATE_UP_TO = ::T.let(nil, ::T.untyped)
   MAX_TIMESTAMP = ::T.let(nil, ::T.untyped)
   MIN_TIMESTAMP = ::T.let(nil, ::T.untyped)
 end
@@ -29318,6 +29615,11 @@ class TZInfo::ZoneinfoTimezoneInfo
 end
 
 module TZInfo
+end
+
+class Tab
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class Tapioca::Compilers::Dsl::Base
@@ -30051,14 +30353,6 @@ module URI
 end
 
 class URL
-  def path(*args, &block); end
-
-  def scheme(*args, &block); end
-
-  def to_s(*args, &block); end
-end
-
-class URL
   extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
 end
@@ -30072,6 +30366,96 @@ module UnicodeNormalize
 end
 
 module UnicodeNormalize
+end
+
+class UnpackStrategy::Air
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Bzip2
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Cab
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Directory
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Dmg
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Fossil
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::GenericUnar
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Gzip
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Lha
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Lzip
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Lzma
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::P7Zip
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Pax
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Rar
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Tar
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Uncompressed
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Xar
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class UnpackStrategy::Xz
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 class UnpackStrategy::Zip
@@ -30105,18 +30489,25 @@ module Utils::Analytics
 end
 
 class Utils::Bottles::Collector
-  def [](*args, &block); end
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
 
-  def []=(*args, &block); end
-
-  def each_key(*args, &block); end
-
-  def key?(*args, &block); end
-
-  def keys(*args, &block); end
+module Utils::Bottles
+  extend ::T::Private::Methods::SingletonMethodHooks
 end
 
 module Utils::Inreplace
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Utils::Shebang::RewriteInfo
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+module Utils::Shebang
   extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
 end
@@ -30127,6 +30518,11 @@ module Utils::Shell
 end
 
 module Utils::Svn
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Version::Token
+  extend ::T::Private::Methods::MethodHooks
   extend ::T::Private::Methods::SingletonMethodHooks
 end
 
@@ -30158,13 +30554,9 @@ module Zeitwerk::ExplicitNamespace
   extend ::Zeitwerk::RealModName
   def self.cpaths(); end
 
-  def self.disable_tracer_if_unneeded(); end
-
   def self.mutex(); end
 
   def self.register(cpath, loader); end
-
-  def self.tracepoint_class_callback(event); end
 
   def self.tracer(); end
 

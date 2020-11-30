@@ -37,6 +37,7 @@ environment
 extract
 fetch
 formula
+formulae
 gist-logs
 help
 home
@@ -67,7 +68,6 @@ pr-publish
 pr-pull
 pr-upload
 prof
-pull
 readall
 reinstall
 release-notes
@@ -87,6 +87,7 @@ tc
 test
 tests
 typecheck
+unbottled
 uninstal
 uninstall
 unlink

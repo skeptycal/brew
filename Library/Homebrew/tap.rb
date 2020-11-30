@@ -12,6 +12,8 @@ require "description_cache_store"
 # {#user} represents the GitHub username and {#repo} represents the repository
 # name without the leading `homebrew-`.
 class Tap
+  extend T::Sig
+
   extend Cachable
 
   TAP_DIRECTORY = (HOMEBREW_LIBRARY/"Taps").freeze
@@ -19,11 +21,13 @@ class Tap
   HOMEBREW_TAP_FORMULA_RENAMES_FILE = "formula_renames.json"
   HOMEBREW_TAP_MIGRATIONS_FILE = "tap_migrations.json"
   HOMEBREW_TAP_AUDIT_EXCEPTIONS_DIR = "audit_exceptions"
+  HOMEBREW_TAP_PYPI_FORMULA_MAPPINGS = "pypi_formula_mappings.json"
 
   HOMEBREW_TAP_JSON_FILES = %W[
     #{HOMEBREW_TAP_FORMULA_RENAMES_FILE}
     #{HOMEBREW_TAP_MIGRATIONS_FILE}
     #{HOMEBREW_TAP_AUDIT_EXCEPTIONS_DIR}/*.json
+    #{HOMEBREW_TAP_PYPI_FORMULA_MAPPINGS}
   ].freeze
 
   def self.fetch(*args)
@@ -110,6 +114,7 @@ class Tap
     @formula_renames = nil
     @tap_migrations = nil
     @audit_exceptions = nil
+    @pypi_formula_mappings = nil
     @config = nil
     remove_instance_variable(:@private) if instance_variable_defined?(:@private)
   end
@@ -123,6 +128,7 @@ class Tap
   end
 
   # The default remote path to this {Tap}.
+  sig { returns(String) }
   def default_remote
     "https://github.com/#{full_name}"
   end
@@ -176,6 +182,7 @@ class Tap
 
   # The issues URL of this {Tap}.
   # e.g. `https://github.com/user/homebrew-repo/issues`
+  sig { returns(T.nilable(String)) }
   def issues_url
     return unless official? || !custom_remote?
 
@@ -186,6 +193,7 @@ class Tap
     name
   end
 
+  sig { returns(String) }
   def version_string
     return "N/A" unless installed?
 
@@ -227,6 +235,7 @@ class Tap
   end
 
   # @private
+  sig { returns(T::Boolean) }
   def core_tap?
     false
   end
@@ -553,23 +562,15 @@ class Tap
   end
 
   # Hash with audit exceptions
+  sig { returns(Hash) }
   def audit_exceptions
-    @audit_exceptions = {}
+    @audit_exceptions = read_formula_list_directory "#{HOMEBREW_TAP_AUDIT_EXCEPTIONS_DIR}/*"
+  end
 
-    Pathname.glob(path/HOMEBREW_TAP_AUDIT_EXCEPTIONS_DIR/"*").each do |exception_file|
-      list_name = exception_file.basename.to_s.chomp(".json").to_sym
-      list_contents = begin
-        JSON.parse exception_file.read
-      rescue JSON::ParserError
-        opoo "#{exception_file} contains invalid JSON"
-      end
-
-      next if list_contents.nil?
-
-      @audit_exceptions[list_name] = list_contents
-    end
-
-    @audit_exceptions
+  # Hash with pypi formula mappings
+  sig { returns(Hash) }
+  def pypi_formula_mappings
+    @pypi_formula_mappings = read_formula_list path/HOMEBREW_TAP_PYPI_FORMULA_MAPPINGS
   end
 
   def ==(other)
@@ -580,7 +581,7 @@ class Tap
   def self.each(&block)
     return unless TAP_DIRECTORY.directory?
 
-    return to_enum unless block_given?
+    return to_enum unless block
 
     TAP_DIRECTORY.subdirs.each do |user|
       user.subdirs.each do |repo|
@@ -595,6 +596,7 @@ class Tap
   end
 
   # An array of all tap cmd directory {Pathname}s.
+  sig { returns(T::Array[Pathname]) }
   def self.cmd_directories
     Pathname.glob TAP_DIRECTORY/"*/*/cmd"
   end
@@ -629,11 +631,40 @@ class Tap
       end
     end
   end
+
+  sig { params(file: Pathname).returns(T.any(T::Array[String], Hash)) }
+  def read_formula_list(file)
+    JSON.parse file.read
+  rescue JSON::ParserError
+    opoo "#{file} contains invalid JSON"
+    {}
+  rescue Errno::ENOENT
+    {}
+  end
+
+  sig { params(directory: String).returns(Hash) }
+  def read_formula_list_directory(directory)
+    list = {}
+
+    Pathname.glob(path/directory).each do |exception_file|
+      list_name = exception_file.basename.to_s.chomp(".json").to_sym
+      list_contents = read_formula_list exception_file
+
+      next if list_contents.blank?
+
+      list[list_name] = list_contents
+    end
+
+    list
+  end
 end
 
 # A specialized {Tap} class for the core formulae.
 class CoreTap < Tap
+  extend T::Sig
+
   # @private
+  sig { void }
   def initialize
     super "Homebrew", "core"
   end
@@ -660,26 +691,31 @@ class CoreTap < Tap
   end
 
   # @private
+  sig { void }
   def uninstall
     raise "Tap#uninstall is not available for CoreTap"
   end
 
   # @private
+  sig { void }
   def pin
     raise "Tap#pin is not available for CoreTap"
   end
 
   # @private
+  sig { void }
   def unpin
     raise "Tap#unpin is not available for CoreTap"
   end
 
   # @private
+  sig { returns(T::Boolean) }
   def pinned?
     false
   end
 
   # @private
+  sig { returns(T::Boolean) }
   def core_tap?
     true
   end
@@ -719,6 +755,13 @@ class CoreTap < Tap
   # @private
   def audit_exceptions
     @audit_exceptions ||= begin
+      self.class.ensure_installed!
+      super
+    end
+  end
+
+  def pypi_formula_mappings
+    @pypi_formula_mappings ||= begin
       self.class.ensure_installed!
       super
     end

@@ -1,4 +1,4 @@
-# typed: false
+# typed: true
 # frozen_string_literal: true
 
 require "cache_store"
@@ -52,6 +52,8 @@ require "utils/spdx"
 #   end
 # end</pre>
 class Formula
+  extend T::Sig
+
   include FileUtils
   include Utils::Inreplace
   include Utils::Shebang
@@ -111,11 +113,6 @@ class Formula
   # @private
   attr_reader :stable
 
-  # @private
-  def devel
-    odisabled "Formula#devel"
-  end
-
   # The HEAD {SoftwareSpec} for this {Formula}.
   # Installed when using `brew install --HEAD`.
   # This is always installed with the version `HEAD` and taken from the latest
@@ -127,6 +124,7 @@ class Formula
 
   # The currently active {SoftwareSpec}.
   # @see #determine_active_spec
+  sig { returns(SoftwareSpec) }
   attr_reader :active_spec
 
   protected :active_spec
@@ -280,12 +278,13 @@ class Formula
   # and is specified to this instance.
   def installed_alias_path
     path = build.source["path"] if build.is_a?(Tab)
-    return unless path&.match?(%r{#{HOMEBREW_TAP_DIR_REGEX}/Aliases})
+    return unless path&.match?(%r{#{HOMEBREW_TAP_DIR_REGEX}/Aliases}o)
     return unless File.symlink?(path)
 
     path
   end
 
+  sig { returns(T.nilable(String)) }
   def installed_alias_name
     File.basename(installed_alias_path) if installed_alias_path
   end
@@ -325,11 +324,6 @@ class Formula
     active_spec == stable
   end
 
-  # @private
-  def devel?
-    odisabled "Formula#devel?"
-  end
-
   # Is the currently active {SoftwareSpec} a {#head} build?
   # @private
   def head?
@@ -354,6 +348,7 @@ class Formula
 
   # The Bottle object for the currently active {SoftwareSpec}.
   # @private
+  sig { returns(T.nilable(Bottle)) }
   def bottle
     Bottle.new(self, bottle_specification) if bottled?
   end
@@ -407,6 +402,7 @@ class Formula
   end
 
   # The {PkgVersion} for this formula with {version} and {#revision} information.
+  sig { returns(PkgVersion) }
   def pkg_version
     PkgVersion.new(version, revision)
   end
@@ -600,8 +596,9 @@ class Formula
   # The parent of the prefix; the named directory in the cellar containing all
   # installed versions of this software.
   # @private
+  sig { returns(Pathname) }
   def rack
-    Pathname.new("#{HOMEBREW_CELLAR}/#{name}")
+    HOMEBREW_CELLAR/name
   end
 
   # All currently installed prefix directories.
@@ -888,6 +885,7 @@ class Formula
   end
 
   # The prefix, if any, to use in filenames for logging current activity.
+  sig { returns(String) }
   def active_log_prefix
     if active_log_type
       "#{active_log_type}."
@@ -936,11 +934,13 @@ class Formula
   end
 
   # The generated launchd {.plist} service name.
+  sig { returns(String) }
   def plist_name
     "homebrew.mxcl.#{name}"
   end
 
   # The generated launchd {.plist} file path.
+  sig { returns(Pathname) }
   def plist_path
     prefix/"#{plist_name}.plist"
   end
@@ -958,42 +958,52 @@ class Formula
   # This is the preferred way to refer to a formula in plists or from another
   # formula, as the path is stable even when the software is updated.
   # <pre>args << "--with-readline=#{Formula["readline"].opt_prefix}" if build.with? "readline"</pre>
+  sig { returns(Pathname) }
   def opt_prefix
-    Pathname.new("#{HOMEBREW_PREFIX}/opt/#{name}")
+    HOMEBREW_PREFIX/"opt"/name
   end
 
+  sig { returns(Pathname) }
   def opt_bin
     opt_prefix/"bin"
   end
 
+  sig { returns(Pathname) }
   def opt_include
     opt_prefix/"include"
   end
 
+  sig { returns(Pathname) }
   def opt_lib
     opt_prefix/"lib"
   end
 
+  sig { returns(Pathname) }
   def opt_libexec
     opt_prefix/"libexec"
   end
 
+  sig { returns(Pathname) }
   def opt_sbin
     opt_prefix/"sbin"
   end
 
+  sig { returns(Pathname) }
   def opt_share
     opt_prefix/"share"
   end
 
+  sig { returns(Pathname) }
   def opt_pkgshare
     opt_prefix/"share"/name
   end
 
+  sig { returns(Pathname) }
   def opt_elisp
     opt_prefix/"share/emacs/site-lisp"/name
   end
 
+  sig { returns(Pathname) }
   def opt_frameworks
     opt_prefix/"Frameworks"
   end
@@ -1004,6 +1014,7 @@ class Formula
   # Defaults to true so overridden version does not have to check if bottles
   # are supported.
   # Replaced by {.pour_bottle?}'s `satisfy` method if it is specified.
+  sig { returns(T::Boolean) }
   def pour_bottle?
     true
   end
@@ -1012,40 +1023,45 @@ class Formula
   delegate pour_bottle_check_unsatisfied_reason: :"self.class"
 
   # Can be overridden to run commands on both source and bottle installation.
+  sig { overridable.void }
   def post_install; end
 
   # @private
+  sig { void }
   def run_post_install
     @prefix_returns_versioned_prefix = true
     build = self.build
-    self.build = Tab.for_formula(self)
 
-    new_env = {
-      TMPDIR:        HOMEBREW_TEMP,
-      TEMP:          HOMEBREW_TEMP,
-      TMP:           HOMEBREW_TEMP,
-      _JAVA_OPTIONS: "-Djava.io.tmpdir=#{HOMEBREW_TEMP}",
-      HOMEBREW_PATH: nil,
-      PATH:          ENV["HOMEBREW_PATH"],
-    }
+    begin
+      self.build = Tab.for_formula(self)
 
-    with_env(new_env) do
-      ENV.clear_sensitive_environment!
+      new_env = {
+        TMPDIR:        HOMEBREW_TEMP,
+        TEMP:          HOMEBREW_TEMP,
+        TMP:           HOMEBREW_TEMP,
+        _JAVA_OPTIONS: "-Djava.io.tmpdir=#{HOMEBREW_TEMP}",
+        HOMEBREW_PATH: nil,
+        PATH:          ENV["HOMEBREW_PATH"],
+      }
 
-      etc_var_dirs = [bottle_prefix/"etc", bottle_prefix/"var"]
-      Find.find(*etc_var_dirs.select(&:directory?)) do |path|
-        path = Pathname.new(path)
-        path.extend(InstallRenamed)
-        path.cp_path_sub(bottle_prefix, HOMEBREW_PREFIX)
+      with_env(new_env) do
+        ENV.clear_sensitive_environment!
+
+        etc_var_dirs = [bottle_prefix/"etc", bottle_prefix/"var"]
+        T.unsafe(Find).find(*etc_var_dirs.select(&:directory?)) do |path|
+          path = Pathname.new(path)
+          path.extend(InstallRenamed)
+          path.cp_path_sub(bottle_prefix, HOMEBREW_PREFIX)
+        end
+
+        with_logging("post_install") do
+          post_install
+        end
       end
-
-      with_logging("post_install") do
-        post_install
-      end
+    ensure
+      self.build = build
+      @prefix_returns_versioned_prefix = false
     end
-  ensure
-    self.build = build
-    @prefix_returns_versioned_prefix = false
   end
 
   # Warn the user about any Homebrew-specific issues or quirks for this package.
@@ -1067,6 +1083,7 @@ class Formula
   #   s += "Some issue only on older systems" if MacOS.version < :el_capitan
   #   s
   # end</pre>
+  sig { overridable.returns(T.nilable(String)) }
   def caveats
     nil
   end
@@ -1089,6 +1106,8 @@ class Formula
   # keep .la files with:
   #   skip_clean :la
   # @private
+  sig { params(path: Pathname).returns(T::Boolean) }
+
   def skip_clean?(path)
     return true if path.extname == ".la" && self.class.skip_clean_paths.include?(:la)
 
@@ -1160,11 +1179,13 @@ class Formula
   # @return [String, Symbol]
   delegate disable_reason: :"self.class"
 
+  sig { returns(T::Boolean) }
   def skip_cxxstdlib_check?
     false
   end
 
   # @private
+  sig { returns(T::Boolean) }
   def require_universal_deps?
     false
   end
@@ -1239,7 +1260,7 @@ class Formula
     Formula.cache[:outdated_kegs] ||= {}
     Formula.cache[:outdated_kegs][cache_key] ||= begin
       all_kegs = []
-      current_version = false
+      current_version = T.let(false, T::Boolean)
 
       installed_kegs.each do |keg|
         all_kegs << keg
@@ -1258,10 +1279,8 @@ class Formula
         break
       end
 
-      if current_version
-        []
-      elsif (head_version = latest_head_version) &&
-            !head_version_outdated?(head_version, fetch_head: fetch_head)
+      if current_version ||
+         ((head_version = latest_head_version) && !head_version_outdated?(head_version, fetch_head: fetch_head))
         []
       else
         all_kegs += old_installed_formulae.flat_map(&:installed_kegs)
@@ -1365,6 +1384,7 @@ class Formula
   end
 
   # @private
+  sig { returns(String) }
   def inspect
     "#<Formula #{name} (#{active_spec_sym}) #{path}>"
   end
@@ -1373,16 +1393,16 @@ class Formula
   # <pre>on_macos do
   # # Do something Mac-specific
   # end</pre>
-  def on_macos(&_block)
-    raise "No block content defined for on_macos block" unless block_given?
+  def on_macos(&block)
+    raise "No block content defined for on_macos block" unless block
   end
 
   # Block only executed on Linux. No-op on macOS.
   # <pre>on_linux do
   # # Do something Linux-specific
   # end</pre>
-  def on_linux(&_block)
-    raise "No block content defined for on_linux block" unless block_given?
+  def on_linux(&block)
+    raise "No block content defined for on_linux block" unless block
   end
 
   # Standard parameters for cargo builds.
@@ -1396,11 +1416,13 @@ class Formula
   # 3rd party installs.
   # Note that there isn't a std_autotools variant because autotools is a lot
   # less consistent and the standard parameters are more memorable.
+  sig { returns(T::Array[String]) }
   def std_cmake_args
     args = %W[
       -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG
       -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG
       -DCMAKE_INSTALL_PREFIX=#{prefix}
+      -DCMAKE_INSTALL_LIBDIR=lib
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_FIND_FRAMEWORK=LAST
       -DCMAKE_VERBOSE_MAKEFILE=ON
@@ -1423,17 +1445,21 @@ class Formula
   end
 
   # Standard parameters for cabal-v2 builds.
+  sig { returns(T::Array[String]) }
   def std_cabal_v2_args
+    env = T.cast(ENV, T.any(Stdenv, Superenv))
+
     # cabal-install's dependency-resolution backtracking strategy can
     # easily need more than the default 2,000 maximum number of
     # "backjumps," since Hackage is a fast-moving, rolling-release
     # target. The highest known needed value by a formula was 43,478
     # for git-annex, so 100,000 should be enough to avoid most
     # gratuitous backjumps build failures.
-    ["--jobs=#{ENV.make_jobs}", "--max-backjumps=100000", "--install-method=copy", "--installdir=#{bin}"]
+    ["--jobs=#{env.make_jobs}", "--max-backjumps=100000", "--install-method=copy", "--installdir=#{bin}"]
   end
 
   # Standard parameters for meson builds.
+  sig { returns(T::Array[String]) }
   def std_meson_args
     ["--prefix=#{prefix}", "--libdir=#{lib}", "--buildtype=release", "--wrap-mode=nofallback"]
   end
@@ -1869,6 +1895,7 @@ class Formula
   end
 
   # @private
+  sig { returns(T::Boolean) }
   def test_defined?
     false
   end
@@ -1955,6 +1982,7 @@ class Formula
   #
   # # If there is a "make install" available, please use it!
   # system "make", "install"</pre>
+  sig { params(cmd: T.any(String, Pathname), args: T.any(String, Pathname)).void }
   def system(cmd, *args)
     verbose_using_dots = Homebrew::EnvConfig.verbose_using_dots?
 
@@ -2021,10 +2049,12 @@ class Formula
           rd.close
         end
       else
-        pid = fork { exec_cmd(cmd, args, log, logfn) }
+        pid = fork do
+          exec_cmd(cmd, args, log, logfn)
+        end
       end
 
-      Process.wait(pid)
+      Process.wait(T.must(pid))
 
       $stdout.flush
 
@@ -2103,17 +2133,21 @@ class Formula
   # a block.
   def mkdir(name, &block)
     result = FileUtils.mkdir_p(name)
-    return result unless block_given?
+    return result unless block
 
     FileUtils.chdir(name, &block)
   end
 
   # Runs `xcodebuild` without Homebrew's compiler environment variables set.
+  sig { params(args: T.any(String, Pathname)).void }
   def xcodebuild(*args)
     removed = ENV.remove_cc_etc
-    system "xcodebuild", *args
-  ensure
-    ENV.update(removed)
+
+    begin
+      T.unsafe(self).system("xcodebuild", *args)
+    ensure
+      ENV.update(removed)
+    end
   end
 
   def fetch_patches
@@ -2143,7 +2177,8 @@ class Formula
     if cmd == "python"
       setup_py_in_args = %w[setup.py build.py].include?(args.first)
       setuptools_shim_in_args = args.any? { |a| a.to_s.start_with? "import setuptools" }
-      ENV.refurbish_args if setup_py_in_args || setuptools_shim_in_args
+      env = T.cast(ENV, T.any(Stdenv, Superenv))
+      env.refurbish_args if setup_py_in_args || setuptools_shim_in_args
     end
 
     $stdout.reopen(out)
@@ -2151,7 +2186,7 @@ class Formula
     out.close
     args.map!(&:to_s)
     begin
-      exec(cmd, *args)
+      T.unsafe(Kernel).exec(cmd, *args)
     rescue
       nil
     end
@@ -2212,10 +2247,6 @@ class Formula
         raise "You cannot override Formula#brew in class #{name}"
       when :test
         define_method(:test_defined?) { true }
-      when :patches
-        odisabled "a Formula#patches definition", "'patch do' block calls"
-      when :options
-        odisabled "a Formula#options definition", "'option do' block calls"
       end
     end
 
@@ -2259,10 +2290,7 @@ class Formula
       if args.nil?
         @licenses
       else
-        if args.is_a? Array
-          odeprecated "`license [...]`", "`license any_of: [...]`"
-          args = { any_of: args }
-        end
+        odisabled "`license [...]`", "`license any_of: [...]`" if args.is_a? Array
         @licenses = args
       end
     end
@@ -2422,7 +2450,7 @@ class Formula
     # Get the `BUILD_FLAGS` from the formula's namespace set in `Formulary::load_formula`.
     # @private
     def build_flags
-      namespace = to_s.split("::")[0..-2].join("::")
+      namespace = T.must(to_s.split("::")[0..-2]).join("::")
       return [] if namespace.empty?
 
       mod = const_get(namespace)
@@ -2443,14 +2471,9 @@ class Formula
     # end</pre>
     def stable(&block)
       @stable ||= SoftwareSpec.new(flags: build_flags)
-      return @stable unless block_given?
+      return @stable unless block
 
       @stable.instance_eval(&block)
-    end
-
-    # @private
-    def devel
-      odisabled "'devel' blocks in formulae", "'head' blocks or @-versioned formulae"
     end
 
     # @!attribute [w] head
@@ -2467,7 +2490,7 @@ class Formula
     # <pre>head "https://hg.is.awesome.but.git.has.won.example.com/", using: :hg</pre>
     def head(val = nil, specs = {}, &block)
       @head ||= HeadSoftwareSpec.new(flags: build_flags)
-      if block_given?
+      if block
         @head.instance_eval(&block)
       elsif val
         @head.url(val, specs)
@@ -2538,16 +2561,16 @@ class Formula
     # <pre>on_macos do
     #   depends_on "mac_only_dep"
     # end</pre>
-    def on_macos(&_block)
-      raise "No block content defined for on_macos block" unless block_given?
+    def on_macos(&block)
+      raise "No block content defined for on_macos block" unless block
     end
 
     # Block only executed on Linux. No-op on macOS.
     # <pre>on_linux do
     #   depends_on "linux_only_dep"
     # end</pre>
-    def on_linux(&_block)
-      raise "No block content defined for on_linux block" unless block_given?
+    def on_linux(&block)
+      raise "No block content defined for on_linux block" unless block
     end
 
     # @!attribute [w] option
@@ -2742,7 +2765,7 @@ class Formula
     # end</pre>
     def livecheck(&block)
       @livecheck ||= Livecheck.new(self)
-      return @livecheck unless block_given?
+      return @livecheck unless block
 
       @livecheckable = true
       @livecheck.instance_eval(&block)

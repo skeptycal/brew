@@ -1,4 +1,4 @@
-# typed: false
+# typed: true
 # frozen_string_literal: true
 
 require "json"
@@ -7,8 +7,11 @@ require "style"
 require "cli/parser"
 
 module Homebrew
+  extend T::Sig
+
   module_function
 
+  sig { returns(CLI::Parser) }
   def style_args
     Homebrew::CLI::Parser.new do
       usage_banner <<~EOS
